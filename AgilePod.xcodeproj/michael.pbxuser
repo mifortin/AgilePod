@@ -1,0 +1,159 @@
+// !$*UTF8*$!
+{
+	0867D690FE84028FC02AAC07 /* Project object */ = {
+		activeBuildConfigurationName = Debug;
+		activeTarget = D2AAC07D0554694100DB518D /* AgilePod */;
+		addToTargets = (
+			D2AAC07D0554694100DB518D /* AgilePod */,
+		);
+		breakpoints = (
+		);
+		codeSenseManager = 4CE4366211B3065D00486C3C /* Code sense */;
+		perUserDictionary = {
+			PBXConfiguration.PBXFileTableDataSource3.PBXFileTableDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					20,
+					238,
+					20,
+					48,
+					43,
+					43,
+					20,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXFileDataSource_FiletypeID,
+					PBXFileDataSource_Filename_ColumnID,
+					PBXFileDataSource_Built_ColumnID,
+					PBXFileDataSource_ObjectSize_ColumnID,
+					PBXFileDataSource_Errors_ColumnID,
+					PBXFileDataSource_Warnings_ColumnID,
+					PBXFileDataSource_Target_ColumnID,
+				);
+			};
+			PBXConfiguration.PBXFileTableDataSource3.PBXFindDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXFindDataSource_LocationID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					200,
+					252,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXFindDataSource_MessageID,
+					PBXFindDataSource_LocationID,
+				);
+			};
+			PBXConfiguration.PBXTargetDataSource.PBXTargetDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					20,
+					198,
+					60,
+					20,
+					48,
+					43,
+					43,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXFileDataSource_FiletypeID,
+					PBXFileDataSource_Filename_ColumnID,
+					PBXTargetDataSource_PrimaryAttribute,
+					PBXFileDataSource_Built_ColumnID,
+					PBXFileDataSource_ObjectSize_ColumnID,
+					PBXFileDataSource_Errors_ColumnID,
+					PBXFileDataSource_Warnings_ColumnID,
+				);
+			};
+			PBXPerProjectTemplateStateSaveDate = 296945215;
+			PBXWorkspaceStateSaveDate = 296945215;
+		};
+		perUserProjectItems = {
+			4CE4396A11B361EC00486C3C /* PBXBookmark */ = 4CE4396A11B361EC00486C3C /* PBXBookmark */;
+			4CE4396D11B361F500486C3C /* PBXTextBookmark */ = 4CE4396D11B361F500486C3C /* PBXTextBookmark */;
+		};
+		sourceControlManager = 4CE4366111B3065D00486C3C /* Source Control */;
+		userBuildSettings = {
+		};
+	};
+	4CE4366111B3065D00486C3C /* Source Control */ = {
+		isa = PBXSourceControlManager;
+		fallbackIsa = XCSourceControlManager;
+		isSCMEnabled = 0;
+		scmConfiguration = {
+			repositoryNamesForRoots = {
+				"" = "";
+			};
+		};
+	};
+	4CE4366211B3065D00486C3C /* Code sense */ = {
+		isa = PBXCodeSenseManager;
+		indexTemplatePath = "";
+	};
+	4CE4367711B3085200486C3C /* Particle.h */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {591, 1946}}";
+			sepNavSelRange = "{926, 0}";
+			sepNavVisRange = "{195, 1279}";
+			sepNavWindowFrame = "{{211, 15}, {650, 1163}}";
+		};
+	};
+	4CE4367811B3085200486C3C /* TextureManager.h */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {591, 1074}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRange = "{0, 431}";
+			sepNavWindowFrame = "{{15, 10}, {650, 1163}}";
+		};
+	};
+	4CE4368311B308B900486C3C /* Blit.c */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {591, 2646}}";
+			sepNavSelRange = "{111, 0}";
+			sepNavVisRange = "{390, 2528}";
+			sepNavWindowFrame = "{{543, 15}, {650, 1163}}";
+		};
+	};
+	4CE4368411B308B900486C3C /* Blit.h */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {591, 1074}}";
+			sepNavSelRange = "{711, 0}";
+			sepNavVisRange = "{0, 720}";
+			sepNavWindowFrame = "{{863, 15}, {650, 1163}}";
+		};
+	};
+	4CE436CD11B32E8800486C3C /* Immediate.h */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {591, 1792}}";
+			sepNavSelRange = "{1921, 0}";
+			sepNavVisRange = "{877, 1644}";
+			sepNavWindowFrame = "{{1173, 15}, {650, 1163}}";
+		};
+	};
+	4CE4396A11B361EC00486C3C /* PBXBookmark */ = {
+		isa = PBXBookmark;
+		fRef = 4CE4368311B308B900486C3C /* Blit.c */;
+	};
+	4CE4396D11B361F500486C3C /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 4CE4368311B308B900486C3C /* Blit.c */;
+		name = "Blit.c: 9";
+		rLen = 0;
+		rLoc = 111;
+		rType = 0;
+		vrLen = 2528;
+		vrLoc = 390;
+	};
+	AA747D9E0F9514B9006C5449 /* AgilePod_Prefix.pch */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {591, 1074}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRange = "{0, 188}";
+			sepNavWindowFrame = "{{15, 10}, {650, 1163}}";
+		};
+	};
+	D2AAC07D0554694100DB518D /* AgilePod */ = {
+		activeExec = 0;
+	};
+}
