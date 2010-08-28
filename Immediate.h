@@ -1,7 +1,20 @@
 /*
- *  Immediate.h
- *  AgilePod
- *
+   Copyright 2010 Michael Fortin
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+ */
+   
+/*
  *	A restricted implementation of GL immediate mode for iTouch.
  */
 
@@ -14,6 +27,7 @@
 
 #import <OpenGLES/ES1/gl.h>
 #import <OpenGLES/ES1/glext.h>
+#import "Camera.h"
 
 #define ALIGN(x)	__attribute__((aligned(x/8)))
 
@@ -193,7 +207,14 @@ private:
 	short m_mode;
 	short m_curVertex;
 	
+	//Texture info...
+	GLuint m_textureID;
+	
 public:
+	gli()
+	: m_textureID(0)
+	{}
+
 	//add texture coordinates...
 	inline void texCoord(float u, float v=0)	{	m_texCoord = GL_TEX(u,v);		}
 	inline void texCoordi(int u, int v=0)		{	m_texCoord = GL_TEX(u,v);		}
@@ -204,6 +225,14 @@ public:
 	{	m_colour = GL_COL(r,g,b,a);		}
 	inline void colour(const GL_COL &in_color)
 	{	m_colour = in_color;			}
+	
+	inline void bindTexture(GLuint in_textureID)
+	{
+		if (in_textureID != m_textureID)
+		{
+			glBindTexture(GL_TEXTURE_2D, in_textureID);
+		}
+	}
 	
 	inline void vertex(float x, float y=0, float z=0)
 	{
@@ -224,6 +253,11 @@ public:
 	inline void translate(float dx, float dy=0, float dz = 0)
 	{
 		glTranslatef(dx*POSITION_MULT, dy*POSITION_MULT, dz*POSITION_MULT);
+	}
+	
+	inline void translate(Coord2D &in_t)
+	{
+		translate(in_t.x, in_t.y);
 	}
 
 	//Start and end a shape...

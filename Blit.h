@@ -1,9 +1,18 @@
 /*
- *  Blit.h
- *  Elevator
- *
- */
+   Copyright 2010 Michael Fortin
 
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+ */
 #ifndef BLIT_H
 #define BLIT_H
 
@@ -23,7 +32,7 @@
 //tStart/End	start/end of texture coord
 //tS?			scales render coordinates into texture coordinates
 template<int increments>
-static void drawEllipse(const float x, const float y,
+static void drawEllipse(const Coord2D in_position,
 						const float rStart, const float rEnd,
 						const int u, const int v,
 						const float tStart, const float tEnd,
@@ -43,26 +52,26 @@ static void drawEllipse(const float x, const float y,
 		const float ay2 = sin(a + angleIncrement);
 		
 		//Compute vertices
-		const float vax1 = ax1*rStart + x;
-		const float vax2 = ax2*rStart + x;
-		const float vay1 = ay1*rStart + y;
-		const float vay2 = ay2*rStart + y;
+		const float vax1 = ax1*rStart + in_position.x;
+		const float vax2 = ax2*rStart + in_position.x;
+		const float vay1 = ay1*rStart + in_position.y;
+		const float vay2 = ay2*rStart + in_position.y;
 		
-		const float vax1X = ax1*rEnd + x;
-		const float vax2X = ax2*rEnd + x;
-		const float vay1X = ay1*rEnd + y;
-		const float vay2X = ay2*rEnd + y;
+		const float vax1X = ax1*rEnd + in_position.x;
+		const float vax2X = ax2*rEnd + in_position.x;
+		const float vay1X = ay1*rEnd + in_position.y;
+		const float vay2X = ay2*rEnd + in_position.y;
 		
 		//Warp texture coordinates
-		const float tvax1 = ax1*tStart + x;
-		const float tvax2 = ax2*tStart + x;
-		const float tvay1 = ay1*tStart + y;
-		const float tvay2 = ay2*tStart + y;
+		const float tvax1 = ax1*tStart + in_position.x;
+		const float tvax2 = ax2*tStart + in_position.x;
+		const float tvay1 = ay1*tStart + in_position.y;
+		const float tvay2 = ay2*tStart + in_position.y;
 		
-		const float tvax1X = ax1*tEnd + x;
-		const float tvax2X = ax2*tEnd + x;
-		const float tvay1X = ay1*tEnd + y;
-		const float tvay2X = ay2*tEnd + y;
+		const float tvax1X = ax1*tEnd + in_position.x;
+		const float tvax2X = ax2*tEnd + in_position.x;
+		const float tvay1X = ay1*tEnd + in_position.y;
+		const float tvay2X = ay2*tEnd + in_position.y;
 		
 		const int tax1 = tvax1 * tSx + u;
 		const int tax2 = tvax2 * tSx + u;
