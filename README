@@ -1,0 +1,36 @@
+AgilePod
+----------------------------------------------------
+About:
+This is my little library that I use when I make
+applications for Apple's iPod/iPad/iPhone.
+
+It started off very small a year ago with a single
+file, Blit.h.  From there, it has expanded to be
+much larger.
+
+----------------------------------------------------
+Development:
+The code changes a lot.  If you need a piece of
+code, replicate it following the license.
+
+In other words, it's meant to be used in a project,
+but not remain stable enough to update to the latest
+version without breaking any code.
+
+This was done so that the library can quickly move
+and adjust to various projects.  For those that want
+to follow the library, code changes are normally
+easy to incorporate (just tedious).
+
+----------------------------------------------------
+Usage:
+Copy the files into your project.  Make sure that
+you use a C++ or Objective-C++ file to include the
+files.
+
+----------------------------------------------------
+More Information:
+See the github project page.  There I'll start
+documenting what each file does.  Or you can
+quickly read through the files; there isn't much.
+
