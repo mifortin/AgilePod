@@ -17,6 +17,7 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
+#include <CoreGraphics/CoreGraphics.h>
 #include <math.h>
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -25,13 +26,17 @@ class Coord2D;
 
 static Coord2D operator/(const Coord2D &a, const float b);
 
-class Coord2D
+class Coord2D : public CGPoint
 {
 public:
-	float x, y;
 	
 	Coord2D(float ix=0, float iy=0)
-	: x(ix), y(iy) {}
+	: CGPoint(CGPointMake(ix, iy))
+	{}
+	
+	Coord2D(CGPoint &in_pt)
+	: CGPoint(in_pt)
+	{}
 	
 	Coord2D &operator+=(const Coord2D &other)
 	{
@@ -72,6 +77,13 @@ public:
 	{
 		x *= b;
 		y *= b;
+		return *this;
+	}
+	
+	Coord2D &operator/=(float in_b)
+	{
+		x /= in_b;
+		y /= in_b;
 		return *this;
 	}
 };

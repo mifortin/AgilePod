@@ -14,17 +14,7 @@
    limitations under the License.
  */
 
-#ifndef RESTORER_H
-#define RESTORER_H
+#import "Immediate.h"
 
-//Object responsible for providing access to a binary buffer to save and restore
-//data.
-class Save
-{
-};
-
-class Restore
-{
-};
-
-#endif
+gl2D gl;
+gliColourUnsignedByte gliColourWhite(255,255,255,255);

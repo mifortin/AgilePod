@@ -1,0 +1,57 @@
+/*
+   Copyright 2010 Michael Fortin
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+ */
+
+#import "TextureManager.h"
+#import <CoreFoundation/CoreFoundation.h>
+#import "Immediate.h"
+
+Texture::Texture(const char *in_textureName)
+{
+	CGImageRef texImage = [UIImage imageNamed:
+							[NSString stringWithCString:in_textureName
+												encoding:NSUTF8StringEncoding]]
+									.CGImage;
+	
+	if (texImage)
+	{
+		int width = CGImageGetWidth(texImage);
+		int height = CGImageGetHeight(texImage);
+		
+		GLubyte *imageData = (GLubyte*)malloc(width*height*4);
+		
+		CGContextRef imageContext
+			= CGBitmapContextCreate(imageData, width, height, 8, width*4,
+									CGImageGetColorSpace(texImage),
+									kCGImageAlphaPremultipliedLast);
+		
+		CGContextDrawImage(imageContext,
+							CGRectMake(0,0,width,height),
+							texImage);
+		
+		CGContextRelease(imageContext);
+		
+		glGenTextures(1, &m_texID);
+		
+		gl.bindTexture(m_texID);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA,
+					GL_UNSIGNED_BYTE, imageData);
+		
+		free(imageData);
+		
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	}
+}

@@ -209,10 +209,12 @@ private:
 	
 	//Texture info...
 	GLuint m_textureID;
+	GLuint m_boundTexture;
 	
 public:
 	gli()
 	: m_textureID(0)
+	, m_boundTexture(0)
 	{}
 
 	//add texture coordinates...
@@ -226,12 +228,26 @@ public:
 	inline void colour(const GL_COL &in_color)
 	{	m_colour = in_color;			}
 	
-	inline void bindTexture(GLuint in_textureID)
+	//Bind texture - we return previously bound texture.
+	inline GLuint bindTexture(GLuint in_textureID)
 	{
-		if (in_textureID != m_textureID)
+		int r = m_textureID;
+		m_textureID = in_textureID;
+		if (m_boundTexture != in_textureID)
 		{
-			glBindTexture(GL_TEXTURE_2D, in_textureID);
+			glBindTexture(GL_TEXTURE_2D, m_textureID);
 		}
+		m_boundTexture = in_textureID;
+		return r;
+	}
+	
+	//Call this if binding only needs to occur on the next draw call.
+	//	(hint - usually call this function)
+	inline GLuint useTexture(GLuint in_textureID)
+	{
+		int r = m_textureID;
+		m_textureID = in_textureID;
+		return r;
 	}
 	
 	inline void vertex(float x, float y=0, float z=0)
@@ -269,6 +285,12 @@ public:
 
 	inline void end()
 	{
+		if (m_boundTexture !=  m_textureID)
+		{
+			m_boundTexture = m_textureID;
+			glBindTexture(GL_TEXTURE_2D, m_textureID);
+		}
+	
 		glColorPointer(		submission[0].colour.size(),
 							submission[0].colour.type(),
 							sizeof(submission[0]),
@@ -288,10 +310,8 @@ public:
 }ALIGN(32);
 typedef gli<1024, gliPosition2DShort, gliTexCoordShort, gliColourUnsignedByte> gl2D;
 
-gl2D gl;
-
-
-static gliColourUnsignedByte gliColourWhite(255,255,255,255);
+extern gl2D gl;
+extern gliColourUnsignedByte gliColourWhite;
 
 
 static void gliTextureMatrixSetup()

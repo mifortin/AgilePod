@@ -19,31 +19,6 @@
 #ifndef TEXTURE_MANAGER_H
 #define TEXTURE_MANAGER_H
 
-static GLuint g_appTexture		= 0;
-static GLuint g_miniTexture		= 0;
-
-void SetAppTexture(GLuint in_appTexture)
-{
-	g_appTexture = in_appTexture;
-}
-
-
-void SetMiniTexture(GLuint in_miniTexture)
-{
-	g_miniTexture = in_miniTexture;
-}
-
-
-static void useAppTexture()
-{
-	glBindTexture(GL_TEXTURE_2D, g_appTexture);
-}
-
-static void useMiniTexture()
-{
-	glBindTexture(GL_TEXTURE_2D, g_miniTexture);
-}
-
 
 //A way to manage the textures on-demand.
 //	We only load up the proper textures based upon screen size information.
@@ -51,11 +26,24 @@ class Texture
 {
 	GLuint m_texID;
 public:
-	
+	Texture(const char *in_textureName);
 
-	inline void bind()
+	//Immediately bind the texture
+	inline GLuint bind()
 	{
-		gl.bindTexture(m_texID);
+		return gl.bindTexture(m_texID);
+	}
+	
+	//Lazily bind the texture.  That is; it is only bound
+	//upon rendering - and only if the texture ID changed.
+	inline GLuint use()
+	{
+		return gl.useTexture(m_texID);
+	}
+	
+	virtual ~Texture()
+	{
+		glDeleteTextures(1, &m_texID);
 	}
 };
 
