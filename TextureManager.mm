@@ -45,9 +45,8 @@ Texture::Texture(const char *in_textureName)
 		
 		glGenTextures(1, &m_texID);
 		
-		gl.bindTexture(m_texID);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA,
-					GL_UNSIGNED_BYTE, imageData);
+		gl.useTexture(m_texID);
+		gl.uploadImageData(imageData, width, height);
 		
 		free(imageData);
 		

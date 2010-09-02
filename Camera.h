@@ -34,7 +34,7 @@ public:
 	: CGPoint(CGPointMake(ix, iy))
 	{}
 	
-	Coord2D(CGPoint &in_pt)
+	Coord2D(CGPoint in_pt)
 	: CGPoint(in_pt)
 	{}
 	

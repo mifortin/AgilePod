@@ -228,19 +228,6 @@ public:
 	inline void colour(const GL_COL &in_color)
 	{	m_colour = in_color;			}
 	
-	//Bind texture - we return previously bound texture.
-	inline GLuint bindTexture(GLuint in_textureID)
-	{
-		int r = m_textureID;
-		m_textureID = in_textureID;
-		if (m_boundTexture != in_textureID)
-		{
-			glBindTexture(GL_TEXTURE_2D, m_textureID);
-		}
-		m_boundTexture = in_textureID;
-		return r;
-	}
-	
 	//Call this if binding only needs to occur on the next draw call.
 	//	(hint - usually call this function)
 	inline GLuint useTexture(GLuint in_textureID)
@@ -248,6 +235,18 @@ public:
 		int r = m_textureID;
 		m_textureID = in_textureID;
 		return r;
+	}
+	
+	//Upload RGBA image data for a texture.
+	inline void uploadImageData(void *imageData, int width, int height, int mipmap=0)
+	{
+		if (m_boundTexture !=  m_textureID)
+		{
+			m_boundTexture = m_textureID;
+			glBindTexture(GL_TEXTURE_2D, m_textureID);
+		}
+		
+		glTexImage2D(GL_TEXTURE_2D, mipmap, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
 	}
 	
 	inline void vertex(float x, float y=0, float z=0)

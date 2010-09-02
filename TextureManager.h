@@ -27,12 +27,6 @@ class Texture
 	GLuint m_texID;
 public:
 	Texture(const char *in_textureName);
-
-	//Immediately bind the texture
-	inline GLuint bind()
-	{
-		return gl.bindTexture(m_texID);
-	}
 	
 	//Lazily bind the texture.  That is; it is only bound
 	//upon rendering - and only if the texture ID changed.
