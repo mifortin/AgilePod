@@ -106,21 +106,25 @@ static void drawEllipse(const Coord2D in_position,
 }
 
 
-static void blit32(float in_x, float in_y, float d_x, float d_y)
-{	
+//Much simpler blit function!
+template<int W, int H>
+static void blit(Coord2D in_tex, Coord2D in_dest)
+{
+	const float FW = (float)W;
+	const float FH = (float)H;
 	gl.begin(GL_TRIANGLE_STRIP);
 	{
-		gl.texCoordi(in_x*32, in_y*32);
-		gl.vertex(d_x, d_y);
+		gl.texCoordi(in_tex.x*FW, in_tex.y*FH);
+		gl.vertex(in_dest.x, in_dest.y);
 		
-		gl.texCoordi(in_x*32+32, in_y*32);
-		gl.vertex(d_x+32, d_y);
+		gl.texCoordi(in_tex.x*FW+FW, in_tex.y*FH);
+		gl.vertex(in_dest.x+FW, in_dest.y);
 		
-		gl.texCoordi(in_x*32, in_y*32+32);
-		gl.vertex(d_x, d_y+32);
+		gl.texCoordi(in_tex.x*FW, in_tex.y*FH+FH);
+		gl.vertex(in_dest.x, in_dest.y+FH);
 		
-		gl.texCoordi(in_x*32+32, in_y*32+32);
-		gl.vertex(d_x+32, d_y+32);
+		gl.texCoordi(in_tex.x*FW+FW, in_tex.y*FH+FH);
+		gl.vertex(in_dest.x+FW, in_dest.y+FH);
 	}
 	gl.end();
 }
@@ -144,46 +148,6 @@ static void blitS(float in_x, float in_y, float in_w, float in_h, float d_x, flo
 		gl.vertex(d_x+in_dw, d_y+in_dh);
 	}
 	gl.end();
-}
-
-
-static void blit320(float in_x, float in_y, float d_x, float d_y)
-{
-	float data[20] = {
-		d_x,	d_y,	0,		(in_x+0.5f)/1024.0f,		(in_y+0.5f)/1024.0f,
-		d_x+320,	d_y,	0,	(in_x+320.0f-0.5f)/1024.0f,	(in_y+0.5f)/1024.0f,
-		d_x,	d_y+320,	0,	(in_x+0.5f)/1024.0f,		(in_y+320.0f-0.5f)/1024.0f,
-		d_x+320, d_y+320,	0,	(in_x+320.0f-0.5f)/1024.0f,	(in_y+320.0f-0.5f)/1024.0f};
-	
-	glVertexPointer(3,GL_FLOAT,sizeof(float)*5,data);
-	glTexCoordPointer(2,GL_FLOAT,sizeof(float)*5,data+3);
-	glDrawArrays(GL_TRIANGLE_STRIP,0,4);
-}
-
-static void blit480(float in_x, float in_y, float d_x, float d_y)
-{
-	float data[20] = {
-		d_x,	d_y,		0,	(in_x)/1024.0f,		(in_y)/1024.0f,
-		d_x+480,	d_y,	0,	(in_x+480.0f)/1024.0f,	(in_y)/1024.0f,
-		d_x,	d_y+480,	0,	(in_x)/1024.0f,		(in_y+480.0f)/1024.0f,
-		d_x+480, d_y+480,	0,	(in_x+480.0f)/1024.0f,	(in_y+480.0f)/1024.0f};
-	
-	glVertexPointer(3,GL_FLOAT,sizeof(float)*5,data);
-	glTexCoordPointer(2,GL_FLOAT,sizeof(float)*5,data+3);
-	glDrawArrays(GL_TRIANGLE_STRIP,0,4);
-}
-
-static void blit16(float in_x, float in_y, float d_x, float d_y)
-{
-	float data[20] = {
-		d_x,	d_y,	0,	(in_x*16.0f)/1024.0f,		(in_y*16.0f)/1024.0f,
-		d_x+16,	d_y,	0,	(in_x*16.0f+16.0f)/1024.0f,	(in_y*16.0f)/1024.0f,
-		d_x,	d_y+16,	0,	(in_x*16.0f)/1024.0f,		(in_y*16.0f+16.0f)/1024.0f,
-		d_x+16, d_y+16,	0,	(in_x*16.0f+16.0f)/1024.0f,	(in_y*16.0f+16.0f)/1024.0f};
-	
-	glVertexPointer(3,GL_FLOAT,sizeof(float)*5,data);
-	glTexCoordPointer(2,GL_FLOAT,sizeof(float)*5,data+3);
-	glDrawArrays(GL_TRIANGLE_STRIP,0,4);
 }
 
 
