@@ -257,6 +257,16 @@ public:
 		m_curVertex++;
 	}
 	
+	inline void pushMatrix()
+	{
+		glPushMatrix();
+	}
+	
+	inline void popMatrix()
+	{
+		glPopMatrix();
+	}
+	
 	inline void vertexi(int x=0, int y=0, int z=0)
 	{
 		submission[m_curVertex].position = GL_COORD(x,y,z);
