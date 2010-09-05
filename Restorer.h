@@ -32,6 +32,7 @@ public:
 };
 
 
+//Object that saves key/value pairs
 class Save : public FileData
 {
 private:
@@ -63,6 +64,7 @@ public:
 };
 
 
+//Object that restores key/value pairs
 class Restore : public FileData
 {
 private:
@@ -100,7 +102,7 @@ public:
 	//retain their original size.  (if size changes, versions of data-structures
 	//should be introduced)
 	template<class T>
-	void read(int key, T &value, T defaultValue)
+	void read(int key, T &value, const T defaultValue)
 	{
 		if (key != m_nextKey)
 		{
@@ -115,6 +117,36 @@ public:
 			
 			readNextKey();
 		}
+	}
+};
+
+
+//Object that does both save & restore using a unified interface.  We do this
+//to reduce the amount of code needed.
+class SaveRestore
+{
+private:
+	Save *m_save;
+	Restore *m_restore;
+
+public:
+	SaveRestore(Save *in_save)
+	: m_save(in_save)
+	, m_restore(NULL)
+	{}
+	
+	SaveRestore(Restore *in_restore)
+	: m_save(NULL)
+	, m_restore(in_restore)
+	{}
+	
+	template<class T>
+	void handle(int key, T &value, const T defaultValue)
+	{
+		if (m_save)
+			m_save->write(key, value);
+		else
+			m_restore->read(key, value, defaultValue);
 	}
 };
 

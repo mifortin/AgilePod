@@ -18,6 +18,7 @@
 #define SMART_H
 
 #include <stdio.h>
+#include <stdlib.h>
 
 //A simple smart-pointer.  We have a reference to an object.  When a new
 //object is added, we delete the previous and save the new reference.
@@ -72,7 +73,7 @@ private:
 	OneC(OneC &toCopy)	{}
 
 public:
-	OneC(T in_init = REL::defaultValue())
+	OneC(T in_init = (T)REL::defaultValue())
 	: m_one(in_init)
 	{}
 	
@@ -93,26 +94,44 @@ public:
 };
 
 
+//OneC specialized for things that go NULL...
+class OneCNullSpecification
+{
+public:
+	static bool isNull(void *f)
+	{
+		return f == NULL;
+	}
+	
+	static void* defaultValue()
+	{
+		return NULL;
+	}
+};
+
+
+//OneC specification for malloc'd data
+template<class T>
+class OneCMallocSpecification : public OneCNullSpecification
+{
+public:
+	static void freeResource(T d)
+	{
+		free(d);
+	}
+};
+
+
 //OneC specialized for C FILE objects
 //	Note that specializations simply need to implement a single-parameter
 //	freeResources and isNull function.  Also needs a function to return the
 //	default value.
-class OneCFileReleaseSpecification
+class OneCFileReleaseSpecification : public OneCNullSpecification
 {
 public:
 	static void freeResource(FILE *f)
 	{
 		fclose(f);
-	}
-	
-	static bool isNull(FILE *f)
-	{
-		return f == NULL;
-	}
-	
-	static FILE* defaultValue()
-	{
-		return NULL;
 	}
 };
 
@@ -120,5 +139,21 @@ public:
 //Use OneCFile in lieu of FILE* C objects.  This will automatically close the
 //file upon assigning NULL and at the end of scope.
 typedef		OneC<FILE*, OneCFileReleaseSpecification>			OneCFile;
+
+//OneCMalloc handles malloced data...
+template<class T>
+class OneCMalloc : public OneC<T*, OneCMallocSpecification<T*> >
+{
+public:
+	T *malloc(int number)
+	{
+		return OneC<T*, OneCMallocSpecification<T*> >::operator=((T*)calloc(sizeof(T),number));
+	}
+	
+	T *operator[](int in_index)
+	{
+		return OneC<T*, OneCMallocSpecification<T*> >::operator()[in_index];
+	}
+};
 
 #endif

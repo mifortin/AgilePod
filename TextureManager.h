@@ -15,6 +15,7 @@
  */
 
 #include "Immediate.h"
+#include "Smart.h"
 
 #ifndef TEXTURE_MANAGER_H
 #define TEXTURE_MANAGER_H
@@ -24,7 +25,16 @@
 //	We only load up the proper textures based upon screen size information.
 class Texture
 {
-	GLuint m_texID;
+private:
+	//The OpenGL texture ID that we use	( 0 = not a texture)
+	GLuint 				m_texID;
+	
+	//We only create the texture when needed...
+	OneCMalloc<char>	m_fileName;
+	
+	//Call this to actually load the image(s)
+	void lazyLoad();
+	
 public:
 	Texture(const char *in_textureName);
 	
@@ -32,6 +42,8 @@ public:
 	//upon rendering - and only if the texture ID changed.
 	inline GLuint use()
 	{
+		if (m_texID == 0)	lazyLoad();
+		
 		return gl.useTexture(m_texID);
 	}
 	

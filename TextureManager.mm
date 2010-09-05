@@ -19,10 +19,19 @@
 #import "Immediate.h"
 
 Texture::Texture(const char *in_textureName)
+: m_texID(0)
+{
+	int szLen = strlen(in_textureName);
+	m_fileName.malloc(szLen+1);
+	strcpy(m_fileName(), in_textureName);
+}
+
+
+void Texture::lazyLoad()
 {
 	CGImageRef texImage = [UIImage imageNamed:
-							[NSString stringWithCString:in_textureName
-												encoding:NSUTF8StringEncoding]]
+							[NSString 	stringWithCString:m_fileName()
+										encoding:NSUTF8StringEncoding]]
 									.CGImage;
 	
 	if (texImage)
