@@ -17,6 +17,8 @@
 #ifndef SMART_H
 #define SMART_H
 
+#include <stdio.h>
+
 //A simple smart-pointer.  We have a reference to an object.  When a new
 //object is added, we delete the previous and save the new reference.
 //
@@ -52,5 +54,71 @@ public:
 	
 	virtual ~One()	{	if(m_one)		delete m_one;	}
 };
+
+
+//Implementation of the One object for standard C objects.
+//	The reason to not use polymorphism is to enable the compiler to see
+//	more means to optimize the code.  Also removes any virtual functions.
+//	Essentially, I'd like to use these smart pointers in performance-
+//	critical code.
+//
+//	T	- the type that we want to auto-release
+//	REL	- the free function / test function class, see examples below...
+template<class T, class REL>
+class OneC
+{
+private:
+	T m_one;
+	OneC(OneC &toCopy)	{}
+
+public:
+	OneC(T in_init = REL::defaultValue())
+	: m_one(in_init)
+	{}
+	
+	inline T operator=(T in_init)
+	{
+		if (!REL::isNull(m_one))
+			REL::freeResource(m_one);
+		
+		m_one = in_init;
+		
+		return m_one;
+	}
+	
+	inline T operator()() const	{	return m_one;	}
+	inline T operator->() const	{	return m_one;	}
+	
+	virtual ~OneC()	{	if (!REL::isNull(m_one))	REL::freeResource(m_one);	}
+};
+
+
+//OneC specialized for C FILE objects
+//	Note that specializations simply need to implement a single-parameter
+//	freeResources and isNull function.  Also needs a function to return the
+//	default value.
+class OneCFileReleaseSpecification
+{
+public:
+	static void freeResource(FILE *f)
+	{
+		fclose(f);
+	}
+	
+	static bool isNull(FILE *f)
+	{
+		return f == NULL;
+	}
+	
+	static FILE* defaultValue()
+	{
+		return NULL;
+	}
+};
+
+
+//Use OneCFile in lieu of FILE* C objects.  This will automatically close the
+//file upon assigning NULL and at the end of scope.
+typedef		OneC<FILE*, OneCFileReleaseSpecification>			OneCFile;
 
 #endif
