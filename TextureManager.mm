@@ -34,11 +34,15 @@ void Texture::lazyLoad()
 	NSString *filePath = nil;
 	
 	UIDevice *cd = [UIDevice currentDevice];
-	const char *szIdiom;
-	if (cd.userInterfaceIdiom == UIUserInterfaceIdiomPad)
-		szIdiom = "iPad";
-	else
-		szIdiom = "iPhone";
+	const char *szIdiom = "iPhone";
+	
+	if ([cd respondsToSelector:@selector(userInterfaceIdiom)])
+	{
+		if (cd.userInterfaceIdiom == UIUserInterfaceIdiomPad)
+			szIdiom = "iPad";
+		else
+			szIdiom = "iPhone";
+	}
 	
 	int scale = (int)(gl.deviceScale() + 0.1f);
 	
