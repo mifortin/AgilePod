@@ -211,11 +211,35 @@ private:
 	GLuint m_textureID;
 	GLuint m_boundTexture;
 	
+	//Device info...
+	int		m_width;
+	int		m_height;
+	float	m_scale;
+	
 public:
 	gli()
 	: m_textureID(0)
 	, m_boundTexture(0)
+	, m_width(0)
+	, m_height(0)
+	, m_scale(1)
 	{}
+	
+	//Update device info
+	inline void specifyDeviceSize(int in_width, int in_height)
+	{
+		m_width = in_width;
+		m_height = in_height;
+	}
+	
+	inline void specifyDeviceScale(float in_scale)
+	{
+		m_scale = in_scale;
+	}
+	
+	inline int deviceWidth()					{	return m_width;					}
+	inline int deviceHeight()					{	return m_height;				}
+	inline float deviceScale()					{	return m_scale;					}
 
 	//add texture coordinates...
 	inline void texCoord(float u, float v=0)	{	m_texCoord = GL_TEX(u,v);		}

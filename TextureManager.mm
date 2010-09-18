@@ -18,6 +18,8 @@
 #import <CoreFoundation/CoreFoundation.h>
 #import "Immediate.h"
 
+static NSDictionary *g_textureMapPlist = nil;
+
 Texture::Texture(const char *in_textureName)
 : m_texID(0)
 {
@@ -29,10 +31,85 @@ Texture::Texture(const char *in_textureName)
 
 void Texture::lazyLoad()
 {
-	CGImageRef texImage = [UIImage imageNamed:
-							[NSString 	stringWithCString:m_fileName()
-										encoding:NSUTF8StringEncoding]]
-									.CGImage;
+	NSString *filePath = nil;
+	
+	UIDevice *cd = [UIDevice currentDevice];
+	const char *szIdiom;
+	if (cd.userInterfaceIdiom == UIUserInterfaceIdiomPad)
+		szIdiom = "iPad";
+	else
+		szIdiom = "iPhone";
+	
+	int scale = (int)(gl.deviceScale() + 0.1f);
+	
+	//Enumerate each combination...
+	NSBundle *mb = [NSBundle mainBundle];
+	if (g_textureMapPlist == nil)
+	{
+		NSString *dataPath = [mb pathForResource:@"TextureMap" ofType:@"plist"];
+		
+		NSData *data = nil;
+		
+		if (dataPath == nil)
+			NSLog(@"Unable to find TextureMap.plist");
+		else
+			data = [NSData dataWithContentsOfMappedFile:dataPath];
+	
+		if (data == nil)
+			NSLog(@"Unable to open TextureMap.plist");
+		else
+			g_textureMapPlist
+				= [NSPropertyListSerialization 	propertyListFromData:data
+												mutabilityOption:0
+												format:NULL
+												errorDescription:nil];
+		
+		if (g_textureMapPlist == nil)
+			NSLog(@"Unable to read TextureMap.plist as a plist");
+	}
+	
+	if (g_textureMapPlist != nil)
+	{
+		NSString *fileName = nil;
+		
+		NSString *attempt = [NSString stringWithFormat:@"%s~%s@%i",
+							m_fileName(), szIdiom, scale];
+		fileName = [g_textureMapPlist valueForKey:attempt];
+		
+		if (fileName == nil)
+		{
+			fileName = [g_textureMapPlist valueForKey:
+						[NSString stringWithFormat:@"%s~%s",
+							m_fileName(), szIdiom]];
+		}
+		
+		if (fileName == nil)
+		{
+			fileName = [g_textureMapPlist valueForKey:
+						[NSString stringWithFormat:@"%s", m_fileName()]];
+		}
+		
+		if (fileName != nil)
+		{
+			filePath = [mb pathForResource:fileName ofType:@"png"];
+		}
+	}
+	
+	if (filePath == nil)
+	{
+		filePath = [mb pathForResource:
+					[NSString stringWithFormat:@"%s", m_fileName()]
+					ofType:@"png"];
+	}
+	
+	if (filePath == nil)
+	{
+		throw "Invalid File Path";
+	}
+	
+	NSLog(@"Loading texture from: %@", filePath);
+	
+	CGImageRef texImage = [UIImage imageWithContentsOfFile:filePath].CGImage;
 	
 	if (texImage)
 	{
