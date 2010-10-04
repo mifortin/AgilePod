@@ -20,6 +20,13 @@
 #include <CoreGraphics/CoreGraphics.h>
 #include <math.h>
 
+
+static inline float distance(float in_f)
+{
+	return in_f;
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////
 
 class Coord2D;
@@ -138,58 +145,7 @@ static float dot(const Coord2D &a, const Coord2D &b)
 	return a.x*b.x + a.y*b.y;
 }
 
-
-////////////////////////////////////////////////////////////////////////////////
-
-
-class Coord3D
-{
-public:
-	float x, y, z;
-	
-	Coord3D(float ix=0, float iy=0, float iz=0)
-	: x(ix), y(iy), z(iz) {}
-	
-	Coord3D &operator+=(const Coord3D &other)
-	{
-		x+=other.x;
-		y+=other.y;
-		z+=other.z;
-		return *this;
-	}
-};
-
-
-static Coord3D operator-(const Coord3D &a, const Coord3D &b)
-{
-	return Coord3D(a.x - b.x, a.y - b.y, a.z - b.z);
-}
-
-
-static Coord3D operator*(const Coord3D &a, float b)
-{
-	return Coord3D(a.x*b, a.y*b, a.z*b);
-}
-
-
-static Coord3D to3Space(Coord3D &a)
-{
-	return a;
-}
-
-
-static Coord3D to3Space(Coord2D &a)
-{
-	return Coord3D(a.x, a.y, 0);
-}
-
-
-static float distance(const Coord3D &a, const Coord3D &b)
-{
-	const Coord3D d = a-b;
-	return sqrtf(d.x*d.x + d.y*d.y + d.z*d.z);
-}
-
+#include "Coord3D.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 
