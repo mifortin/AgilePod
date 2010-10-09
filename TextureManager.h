@@ -16,6 +16,7 @@
 
 #include "Immediate.h"
 #include "Smart.h"
+#include "Camera.h"
 
 #ifndef TEXTURE_MANAGER_H
 #define TEXTURE_MANAGER_H
@@ -32,6 +33,9 @@ private:
 	//We only create the texture when needed...
 	OneCMalloc<char>	m_fileName;
 	
+	//Allow a way to get the size...
+	Coord2D				m_size;
+	
 	//Call this to actually load the image(s)
 	void lazyLoad();
 	
@@ -46,6 +50,8 @@ public:
 		
 		return gl.useTexture(m_texID);
 	}
+	
+	inline Coord2D			size()	const	{	return m_size;	}
 	
 	virtual ~Texture()
 	{

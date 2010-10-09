@@ -120,7 +120,10 @@ void Texture::lazyLoad()
 		int width = CGImageGetWidth(texImage);
 		int height = CGImageGetHeight(texImage);
 		
-		GLubyte *imageData = (GLubyte*)malloc(width*height*4);
+		m_size.x = width;
+		m_size.y = height;
+		
+		GLubyte *imageData = (GLubyte*)calloc(width*height*4,1);
 		
 		CGContextRef imageContext
 			= CGBitmapContextCreate(imageData, width, height, 8, width*4,

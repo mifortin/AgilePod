@@ -304,7 +304,7 @@ public:
 		glTranslatef(dx*POSITION_MULT, dy*POSITION_MULT, dz*POSITION_MULT);
 	}
 	
-	inline void translate(Coord2D &in_t)
+	inline void translate(const Coord2D in_t)
 	{
 		translate(in_t.x, in_t.y);
 	}

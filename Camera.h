@@ -132,11 +132,21 @@ static Coord2D operator/(const Coord2D &a, const float b)
 	return Coord2D(a.x/b, a.y/b);
 }
 
+static Coord2D operator/(const float b, const Coord2D &a)
+{
+	return Coord2D(b/a.x, b/a.y);
+}
 
 static float distance(const Coord2D &a, const Coord2D &b)
 {
 	const Coord2D d = a-b;
 	return sqrtf(d.x*d.x + d.y*d.y);
+}
+
+
+static float magnitude(const Coord2D &a)
+{
+	return sqrtf(a.x*a.x + a.y*a.y);
 }
 
 
