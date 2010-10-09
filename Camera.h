@@ -52,6 +52,13 @@ public:
 		return *this;
 	}
 	
+	Coord2D &operator-=(const Coord2D &a)
+	{
+		x -= a.x;
+		y -= a.y;
+		return *this;
+	}
+	
 	inline float magnitude() const
 	{
 		return sqrtf(x*x + y*y);

@@ -17,8 +17,9 @@
 #import "TextureManager.h"
 #import <CoreFoundation/CoreFoundation.h>
 #import "Immediate.h"
+#import "SmartMM.h"
 
-static NSDictionary *g_textureMapPlist = nil;
+static OneNS<NSDictionary*> g_textureMapPlist;
 
 Texture::Texture(const char *in_textureName)
 : m_texID(0)
@@ -48,7 +49,7 @@ void Texture::lazyLoad()
 	
 	//Enumerate each combination...
 	NSBundle *mb = [NSBundle mainBundle];
-	if (g_textureMapPlist == nil)
+	if (g_textureMapPlist() == nil)
 	{
 		NSString *dataPath = [mb pathForResource:@"TextureMap" ofType:@"plist"];
 		
@@ -68,28 +69,28 @@ void Texture::lazyLoad()
 												format:NULL
 												errorDescription:nil];
 		
-		if (g_textureMapPlist == nil)
+		if (g_textureMapPlist() == nil)
 			NSLog(@"Unable to read TextureMap.plist as a plist");
 	}
 	
-	if (g_textureMapPlist != nil)
+	if (g_textureMapPlist() != nil)
 	{
 		NSString *fileName = nil;
 		
 		NSString *attempt = [NSString stringWithFormat:@"%s~%s@%i",
 							m_fileName(), szIdiom, scale];
-		fileName = [g_textureMapPlist valueForKey:attempt];
+		fileName = [g_textureMapPlist() valueForKey:attempt];
 		
 		if (fileName == nil)
 		{
-			fileName = [g_textureMapPlist valueForKey:
+			fileName = [g_textureMapPlist() valueForKey:
 						[NSString stringWithFormat:@"%s~%s",
 							m_fileName(), szIdiom]];
 		}
 		
 		if (fileName == nil)
 		{
-			fileName = [g_textureMapPlist valueForKey:
+			fileName = [g_textureMapPlist() valueForKey:
 						[NSString stringWithFormat:@"%s", m_fileName()]];
 		}
 		
