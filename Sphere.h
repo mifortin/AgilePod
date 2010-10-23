@@ -17,10 +17,11 @@
 #ifndef SPHERE_H
 #define SPHERE_H
 
-#include "Camera.h"
+#include "Coord2D.h"
 
 //Defines a means of doing collisions among spherical objects in 2D
 //	Using the Verlet integration scheme for second order integration...
+class Sphere2DRestorer;
 class Sphere2D
 {
 private:
@@ -28,6 +29,8 @@ private:
 	Coord2D		m_previous_position;
 	Coord2D		m_acceleration;
 	Coord2D		m_velocity;
+	
+	friend class Sphere2DRestorer;
 
 public:
 	float		mass;
@@ -128,6 +131,45 @@ public:
 		m_acceleration = Coord2D(0,0);
 		
 		m_velocity = (m_position - m_previous_position) / in_timestep;
+	}
+};
+
+
+////////////////////////////////////////////////////////////////////////////////
+//	Sphere2DRestorer
+//		Provides a means to serialize and deserialize a Sphere2D object...
+class Sphere2DRestorer : public Restorable
+{
+private:
+	Sphere2D			m_default;	
+	Sphere2D			*m_toSave;
+
+public:
+	Sphere2DRestorer(Sphere2D *io_toSave, const Sphere2D in_default)
+	{
+		m_toSave = io_toSave;
+		m_default = in_default;
+	}
+	
+	void handle(Restorer *in_restore)
+	{
+		Coord2DRestorer position(&m_toSave->m_position, m_default.m_position);
+		in_restore->Object(CFSTR("position"), &position);
+		
+		Coord2DRestorer previousPosition
+							(&m_toSave->m_previous_position,
+							  m_default.m_previous_position);
+		in_restore->Object(CFSTR("previous position"), &previousPosition);
+		
+		Coord2DRestorer velocity(&m_toSave->m_velocity, m_default.m_velocity);
+		in_restore->Object(CFSTR("velocity"), &velocity);
+		
+		Coord2DRestorer acceleration
+						(&m_toSave->m_acceleration, m_default.m_acceleration);
+		in_restore->Object(CFSTR("acceleration"), &acceleration);
+		
+		in_restore->Float(CFSTR("mass"), &m_toSave->mass, m_default.mass);
+		in_restore->Float(CFSTR("radius"), &m_toSave->radius, m_default.radius);
 	}
 };
 
