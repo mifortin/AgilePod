@@ -15,8 +15,134 @@
  */
 
 #import "Restorer.h"
+#import "SmartMM.h"
 
-FileData::FileData(char *in_srcFile, bool readonly)
+#pragma mark Restore
+class RestorerRestorePList : public Restorer
+{
+private:
+	OneNS<NSDictionary*>	m_dictionary;
+
+	RestorerRestorePList()
+	{}
+
+public:
+	RestorerRestorePList(NSString *in_fileName)
+	{
+		NSData *d = [NSData dataWithContentsOfMappedFile:in_fileName];
+		if (d != nil)
+			m_dictionary = [NSPropertyListSerialization propertyListFromData:d mutabilityOption:NSPropertyListImmutable format:nil errorDescription:nil];
+								
+		if (m_dictionary == nil)
+			m_dictionary = [NSDictionary dictionary];
+	}
+	
+	
+	//Restorer==================================================================
+	void Object(CFStringRef in_key, Restorable *in_object)
+	{
+		assert(in_key && in_object);
+		
+		RestorerRestorePList r;
+		r.m_dictionary = [m_dictionary() objectForKey:(NSString*)in_key];
+		if (r.m_dictionary == nil)
+			r.m_dictionary = [NSDictionary dictionary];
+		
+		in_object->handle(&r);
+	}
+	
+	
+	void Int(CFStringRef in_key, int *io_value, int in_default)
+	{
+		assert(io_value && in_key);
+		
+		NSNumber *n = [m_dictionary() objectForKey:(NSString*)in_key];
+		
+		if (n)		*io_value = [n intValue];
+		else		*io_value = in_default;
+	}
+	
+	
+	void Float(CFStringRef in_key, float *io_value, float in_default)
+	{
+		assert(io_value && in_key);
+		
+		NSNumber *n = [m_dictionary() objectForKey:(NSString*)in_key];
+		
+		if (n)		*io_value = [n floatValue];
+		else		*io_value = in_default;
+	}
+};
+
+
+#pragma mark Save
+class RestorerSavePList : public Restorer
+{
+private:
+	OneNS<NSString*>				m_saveTo;
+	OneNS<NSMutableDictionary*>		m_dictionary;
+
+	RestorerSavePList()
+	{}
+	
+
+public:
+	RestorerSavePList(NSString *in_fileName)
+	{
+		m_saveTo = in_fileName;
+		m_dictionary = [NSMutableDictionary dictionaryWithCapacity:5];
+	}
+	
+	
+	virtual ~RestorerSavePList()
+	{
+		if (m_saveTo != nil)
+		{
+			NSData *d = [NSPropertyListSerialization dataFromPropertyList:m_dictionary() format:NSPropertyListBinaryFormat_v1_0 errorDescription:nil];
+			if (d == nil)
+				throw "Failed obtaining data from save";
+			
+			if (![d writeToFile:m_saveTo() atomically:YES])
+				throw "Failed writing data to file";
+		}
+	}
+	
+	
+	//Restorer==================================================================
+	void Object(CFStringRef in_key, Restorable *in_object)
+	{
+		assert(in_key && in_object);
+		assert([m_dictionary() objectForKey:(NSString*)in_key] == nil);
+		
+		RestorerSavePList tmp;
+		tmp.m_dictionary = [NSMutableDictionary dictionaryWithCapacity:5];
+		[m_dictionary() setObject:tmp.m_dictionary() forKey:(NSString*)in_key];
+		in_object->handle(&tmp);
+	}
+	
+	
+	void Int(CFStringRef in_key, int *io_value, int in_default)
+	{
+		assert(in_key && io_value);
+		assert([m_dictionary() objectForKey:(NSString*)in_key] == nil);
+		
+		[m_dictionary() setObject:[NSNumber numberWithInt:*io_value]
+						forKey:(NSString*)in_key];
+	}
+	
+	
+	void Float(CFStringRef in_key, float *io_value, float in_default)
+	{
+		assert(in_key && io_value);
+		assert([m_dictionary() objectForKey:(NSString*)in_key] == nil);
+		
+		[m_dictionary() setObject:[NSNumber numberWithFloat:*io_value]
+						forKey:(NSString*)in_key];
+	}
+};
+
+
+static NSString* PathForFile(CFStringRef in_fileName)
 {
 	//First, scan in the documents directory...
 	NSArray *paths = NSSearchPathForDirectoriesInDomains(
@@ -24,8 +150,7 @@ FileData::FileData(char *in_srcFile, bool readonly)
 									NSUserDomainMask,
 									YES);
 	
-	NSString *tmp = [NSString	stringWithCString:in_srcFile
-								encoding:NSUTF8StringEncoding];
+	NSString *tmp = (NSString*)in_fileName;
 								
 	NSFileManager *fm = [NSFileManager defaultManager];
 	
@@ -48,23 +173,23 @@ FileData::FileData(char *in_srcFile, bool readonly)
 		}
 	}
 	
-	if (foundFile == nil && readonly)
-	{
-		NSBundle *mb = [NSBundle mainBundle];
-		
-		foundFile = [mb 	pathForResource:[tmp stringByDeletingPathExtension]
-							ofType:[tmp pathExtension]];
-	}
-	else if (foundFile == nil)
+	if (foundFile == nil)
 	{
 		NSString *path = [paths objectAtIndex:0];
 		foundFile = [path stringByAppendingPathComponent:tmp];
 	}
 	
-	if (foundFile == nil)
-		throw "File Not Found!";
-	
-	m_filePtr = fopen([foundFile UTF8String], readonly?"r" : "rw");
-	if (m_filePtr() == NULL)
-		throw "Unable to open file!";
+	return foundFile;
+}
+
+
+Restorer *CreateSaveObject(CFStringRef in_fileName)
+{
+	return new RestorerSavePList(PathForFile(in_fileName));
+}
+
+
+Restorer *CreateRestoreObject(CFStringRef in_fileName)
+{
+	return new RestorerRestorePList(PathForFile(in_fileName));
 }

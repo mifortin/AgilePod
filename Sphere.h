@@ -20,12 +20,16 @@
 #include "Camera.h"
 
 //Defines a means of doing collisions among spherical objects in 2D
+//	Using the Verlet integration scheme for second order integration...
 class Sphere2D
 {
+private:
+	Coord2D		m_position;
+	Coord2D		m_previous_position;
+	Coord2D		m_acceleration;
+	Coord2D		m_velocity;
+
 public:
-	Coord2D		position;
-	Coord2D		velocity;
-	Coord2D		force;
 	float		mass;
 	float		radius;
 
@@ -34,40 +38,96 @@ public:
 		mass = 1;
 		radius = 1;
 	}
+	
+	//In verlet integration, velocity can be derived from the positions...
+	inline Coord2D velocity() const
+	{
+		return m_velocity;
+	}
+	
+	inline Coord2D position() const
+	{
+		return m_position;
+	}
+	
+	//Set the position - that is move without affecting underlying forces
+	inline void setPosition(const Coord2D in_position)
+	{
+		m_position = in_position;
+		m_previous_position = in_position;
+		m_velocity = m_acceleration = Coord2D(0,0);
+	}
 
 	//F = ma
 	inline void addForce(const Coord2D in_force)
 	{
-		force += in_force / mass;
+		m_acceleration += in_force / mass;
 	}
 	
 	//Adds a force that slows down an object...
 	inline void addResistiveForce(float in_resistance)
 	{
-		force -= mass * velocity * in_resistance;
+		addForce(-mass * velocity() * in_resistance);
 	}
 	
 	//Adds a force that repulses two spheres...
-	inline void addRepulsiveForce(const float in_k, const Sphere2D &in_other)
+	inline void addRepulsiveForce(Sphere2D &in_other)
 	{
-		Coord2D vectorToSelf = position - in_other.position;
+		Coord2D vectorToSelf = position() - in_other.position();
 		float magnitude = vectorToSelf.magnitude();
 		
 		if (magnitude > radius +in_other.radius
 			|| magnitude < 0.01f)
 			return;
 		
-		addForce(in_k * (radius + in_other.radius - magnitude)
-						* vectorToSelf / magnitude);
+		//Explicitly move the positions so that we never collide
+		Coord2D center = (in_other.m_position + m_position)/2.0f;
+		
+		in_other.m_position += (in_other.m_position - center)
+								/ (in_other.m_position - center).magnitude()
+								* (radius + in_other.radius - magnitude) * 0.5f;
+		
+		m_position += (m_position - center)
+								/ (m_position - center).magnitude()
+								* (radius + in_other.radius - magnitude) * 0.5f;
+	}
+	
+	//Newton's force of attraction.
+	//	F = G (m1 * m2) / r^2
+	//		F is the force
+	//		G is the gravitational constant
+	//		m masses of the points
+	//		r distance (in meters) between points.
+	inline void addNewtonsLawOfUniversalGravitation(Sphere2D &in_other,
+													const float in_constant)
+	{	
+		Coord2D vectorToSelf = position() - in_other.position();
+		float magnitude = vectorToSelf.magnitude();
+		
+		if (magnitude < 0.01f)
+			return;
+		
+		vectorToSelf = (vectorToSelf / magnitude)
+						* in_constant
+						*(mass * in_other.mass / (magnitude * magnitude));
+		
+		addForce(-vectorToSelf);
+		in_other.addForce(vectorToSelf);
 	}
 	
 	//Standard explicit euler integration
-	inline void integrateEuler(const float in_timestep)
+	//	F = ma
+	//	v = da / dt
+	//	p = dv / dt
+	inline void integrate(const float in_timestep)
 	{
-		velocity += force * in_timestep;
-		force = Coord2D(0,0);
+		Coord2D current = m_position;
+		m_position = 2 * m_position - m_previous_position
+					+ in_timestep * in_timestep * m_acceleration;
+		m_previous_position = current;
+		m_acceleration = Coord2D(0,0);
 		
-		position += velocity * in_timestep;
+		m_velocity = (m_position - m_previous_position) / in_timestep;
 	}
 };
 

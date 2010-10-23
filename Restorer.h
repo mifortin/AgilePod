@@ -18,136 +18,88 @@
 #define RESTORER_H
 
 #include "Smart.h"
+#include <CoreFoundation/CoreFoundation.h>
 
-//Object responsible for providing access to a binary buffer to save and restore
-//data.
-class FileData
+/*
+	Restorable
+	
+	Purpose
+		Provide a means for objects to expose their hierarchy to Restorer.
+*/
+class Restorer;
+class Restorable
 {
-protected:
-	OneCFile	m_filePtr;
-
 public:
-	//Builds a new FileData.
-	FileData(char *in_srcFile, bool readonly = true);
+	virtual void handle(Restorer *in_restore) = 0;
 };
 
 
-//Object that saves key/value pairs
-class Save : public FileData
-{
-private:
-
-public:
-	Save(char *in_srcFile)
-	: FileData(in_srcFile, false)
-	{}
+/*
+	Restorer
 	
-	//The key is used internally to allow skipping data that might
-	//not have been defined previously.
-	//	(I suggest 4cc codes with a clear "end" key for each object)
+	Purpose:
+		Provide a simpler means to save / restore the game state (and more).
+	
+	Method:
+		Backed by a property-list, key-value pairs are saved to the file
+		then restored as needed.
+	
+	Notes:
+		Using CoreFoundation to appear like a pure C++ file from callers.
+*/
+class Restorer
+{
+public:
+	
+	//In the case of objects, we just need the object - default values
+	//are assigned within the object...
+	virtual void Object(CFStringRef in_key, Restorable *in_object)				= 0;
+	
+	//The following basic data types can easily be saved & restored
+	//	Each takes in a key, a target, and a default value.
 	//
-	//	0 is a reserved key used for internal purposes.
-	template<class T>
-	void write(int key, const T &value)
-	{
-		if (fwrite(&key, sizeof(key), 1, m_filePtr()) != sizeof(key))
-			throw "Failed writing key!";
-		
-		short sizeOfValue = sizeof(value);
-		if (fwrite(&sizeOfValue, sizeof(sizeOfValue), 1, m_filePtr())
-			!= sizeof(sizeOfValue))
-			throw "Failed writing size of value!";
-		
-		if (fwrite(&value, sizeof(value), 1, m_filePtr()) != sizeof(value))
-			throw "Failed writing value!";
-	}
+	//	In the case of restore
+	//		if a key does not exist in the file, the default value is taken.
+	//		else we always load what's in the file.
+	//
+	//	In the case of save
+	//		target is written to file under the key.  default is ignored.
+	virtual void Int(CFStringRef in_key, int *io_value, int in_default)			= 0;
+	virtual void Float(CFStringRef in_key, float *io_value, float in_default)	= 0;
+	
+	//Needed...
+	virtual ~Restorer()	{}
 };
 
 
-//Object that restores key/value pairs
-class Restore : public FileData
-{
-private:
-	int m_nextKey;
-	short m_nextSize;
+/*
+	CreateSaveObject
 	
-	void readNextKey()
-	{
-		if (m_filePtr() != NULL)
-		{
-			m_nextKey = 0;
-			m_nextSize = 0;
-			
-			if (	fread(&m_nextKey, sizeof(m_nextKey), 1, m_filePtr())
-						!= sizeof(m_nextKey)
-				||	fread(&m_nextSize, sizeof(m_nextSize), 1, m_filePtr())
-						!= sizeof(m_nextSize))
-			{
-				m_filePtr = NULL;
-				return;
-			}
-		}
-	}
-
-public:
-	Restore(char *in_srcFile)
-	: FileData(in_srcFile, true)
-	, m_nextKey(0)
-	{
-		readNextKey();
-	}
+	Purpose
+		Creates a new Restorer object that will accumulate data and save
+		it to the specified file.
 	
-	//Simple way to read in keys.  We assume keys were stored in sequential
-	//order - and that keys are added, not removed - also that data-structures
-	//retain their original size.  (if size changes, versions of data-structures
-	//should be introduced)
-	template<class T>
-	void read(int key, T &value, const T defaultValue)
-	{
-		if (key != m_nextKey)
-		{
-			value = defaultValue;
-		}
-		else if (sizeof(value) != m_nextSize)
-			throw "Size of data structure changed!";
-		else
-		{
-			if (fread(&value, sizeof(value), 1, m_filePtr()) != sizeof(value))
-				throw "Incomplete data structure found in file.";
-			
-			readNextKey();
-		}
-	}
-};
-
-
-//Object that does both save & restore using a unified interface.  We do this
-//to reduce the amount of code needed.
-class SaveRestore
-{
-private:
-	Save *m_save;
-	Restore *m_restore;
-
-public:
-	SaveRestore(Save *in_save)
-	: m_save(in_save)
-	, m_restore(NULL)
-	{}
+	Notes:
+		You must call delete to free resources and actually save the data
 	
-	SaveRestore(Restore *in_restore)
-	: m_save(NULL)
-	, m_restore(in_restore)
-	{}
+	Error
+		Throws a string describing the error
+*/
+Restorer *CreateSaveObject(CFStringRef in_fileName);
+
+/*
+	CreateRestoreObject
 	
-	template<class T>
-	void handle(int key, T &value, const T defaultValue)
-	{
-		if (m_save)
-			m_save->write(key, value);
-		else
-			m_restore->read(key, value, defaultValue);
-	}
-};
+	Purpose
+		Creates a new Restorer object that will restore data from the
+		save file.
+	
+	Notes:
+		You must call delete to free associated resources
+	
+	Error
+		Throws a string describing the error
+*/
+Restorer *CreateRestoreObject(CFStringRef in_fileName);
 
 #endif

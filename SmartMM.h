@@ -17,7 +17,10 @@
 #ifndef SMARTMM_H
 #define SMARTMM_H
 
-//Implementation of "one" for NSObjects
+/*
+	OneNS
+		Smart-pointer for ObjectiveC objects
+*/
 template<class T>
 class OneNS
 {
@@ -45,6 +48,16 @@ public:
 		m_one = in_init;
 		
 		return m_one;
+	}
+	
+	inline bool operator==(T in_cmp)
+	{
+		return in_cmp == m_one;
+	}
+	
+	inline bool operator!=(T in_cmp)
+	{
+		return in_cmp != m_one;
 	}
 	
 	inline T operator()() const		{	return m_one;	}
