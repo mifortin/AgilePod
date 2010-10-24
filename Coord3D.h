@@ -40,6 +40,12 @@ public:
 		z-=other.z;
 		return *this;
 	}
+	
+	Coord3D operator-()
+	{
+		return Coord3D(-x, -y, -z);
+		return *this;
+	}
 };
 
 

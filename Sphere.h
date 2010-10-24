@@ -53,6 +53,11 @@ public:
 		return m_position;
 	}
 	
+	inline Coord2D previousPosition() const
+	{
+		return m_previous_position;
+	}
+	
 	//Set the position - that is move without affecting underlying forces
 	inline void setPosition(const Coord2D in_position)
 	{
@@ -116,6 +121,22 @@ public:
 		
 		addForce(-vectorToSelf);
 		in_other.addForce(vectorToSelf);
+	}
+	
+	inline void addNewtonsLawOfUniversalGravitationToSelf(const Sphere2D &in_other,
+													const float in_constant)
+	{	
+		Coord2D vectorToSelf = position() - in_other.position();
+		float magnitude = vectorToSelf.magnitude();
+		
+		if (magnitude < 0.01f)
+			return;
+		
+		vectorToSelf = (vectorToSelf / magnitude)
+						* in_constant
+						*(mass * in_other.mass / (magnitude * magnitude));
+		
+		addForce(-vectorToSelf);
 	}
 	
 	//Standard explicit euler integration
