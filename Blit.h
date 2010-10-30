@@ -37,8 +37,8 @@ static void drawEllipse(const Coord2D in_position,
 						const int u, const int v,
 						const float tStart, const float tEnd,
 						const float tSx, const float tSy,
-						const gliColourUnsignedByte innerColor = gliColourWhite,
-						const gliColourUnsignedByte outerColor = gliColourWhite)
+						const gliColour innerColor = gliColourWhite,
+						const gliColour outerColor = gliColourWhite)
 {
 	const float angleIncrement = M_PI*2/(float)increments;
 

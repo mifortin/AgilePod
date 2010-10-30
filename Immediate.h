@@ -31,190 +31,149 @@
 
 #define ALIGN(x)	__attribute__((aligned(x/8)))
 
-//Different types of GL data
-template <GLuint GLTYPE, class GLDATA, int MULT>
-class gliType
+////////////////////////////////////////////////////////////////////////////////
+//
+//	OpenGL Colour Object
+//
+class gliColour
 {
-private:
-	GLDATA m_data;
-
+	GLubyte m_r, m_g, m_b, m_a;
 public:
-	gliType()
-	: m_data(0)
-	{}
-
-	inline GLuint type() const			{	return GLTYPE;	}
-	inline float multiplier() const		{	return MULT;	}
 	
-	inline GLDATA operator()() const	{	return m_data;	}
-	
-	inline gliType& operator=(float i)
-	{	m_data = (GLDATA)(i*(float)MULT);	return *this; }
-	
-	inline gliType& operator=(int i)
-	{	m_data = (GLDATA)i;			return *this; }
-	
-	inline gliType& operator=(short s)
-	{	m_data = (GLDATA)s;			return *this; }
-	
-	inline gliType& operator=(unsigned char uc)
-	{	m_data = (GLDATA)uc;			return *this; }
-	
-	inline float floatValue() const	{	return (float)m_data / (float)MULT; }
-	inline float intValue()	  const	{	return (int)m_data;	}
-};
-
-typedef gliType<GL_UNSIGNED_BYTE, 	GLubyte, 255>			gliTypeUnsignedByte;
-typedef gliType<GL_FLOAT,			GLfloat, 1>				gliTypeFloat;
-typedef gliType<GL_SHORT,			GLshort, 2>				gliTypeShort;
-typedef gliType<GL_SHORT,			GLshort, 1024>			gliTypeShort1024;
-
-
-//Actual data types
-template<class GL_TYPE, int COUNT>
-class gliDataList
-{
-protected:
-	GL_TYPE m[COUNT];
-
-public:
-	inline GLuint type() const		{ return m[0].type();		}
-	inline float multiplier() const	{ return m[0].multiplier();	}
-	inline int size() const			{ return COUNT;				}
-};
-
-
-template<class GL_TYPE>
-class gliColour : public gliDataList<GL_TYPE,4>
-{
-public:
 	gliColour(float ir, float ig=0, float ib=0, float ia=0)
 	{
-		gliDataList<GL_TYPE,4>::m[0] = ir;
-		gliDataList<GL_TYPE,4>::m[1] = ib;
-		gliDataList<GL_TYPE,4>::m[2] = ib;
-		gliDataList<GL_TYPE,4>::m[3] = ia;
+		m_r = 255*ir;
+		m_g = 255*ig;
+		m_b = 255*ib;
+		m_a = 255*ia;
 	}
 	
-	gliColour(int ir=0, int ig=0, int ib=0, int ia=0)
+	gliColour(GLubyte ir=0, GLubyte ig=0, GLubyte ib=0, GLubyte ia=0)
 	{
-		gliDataList<GL_TYPE,4>::m[0] = ir;
-		gliDataList<GL_TYPE,4>::m[1] = ib;
-		gliDataList<GL_TYPE,4>::m[2] = ib;
-		gliDataList<GL_TYPE,4>::m[3] = ia;
+		m_r = ir;
+		m_g = ig;
+		m_b = ib;
+		m_a = ia;
 	}
 	
-	GL_TYPE &r()	{	return gliDataList<GL_TYPE,4>::m[0];	}
-	GL_TYPE &g()	{	return gliDataList<GL_TYPE,4>::m[1];	}
-	GL_TYPE &b()	{	return gliDataList<GL_TYPE,4>::m[2];	}
-	GL_TYPE &a()	{	return gliDataList<GL_TYPE,4>::m[3];	}
+	gliColour(int ir, int ig = 0, int ib = 0, int ia = 0)
+	{
+		m_r = ir;
+		m_g = ig;
+		m_b = ib;
+		m_a = ia;
+	}
+	
+	GLubyte &r()	{	return m_r;	}
+	GLubyte &g()	{	return m_g;	}
+	GLubyte &b()	{	return m_b;	}
+	GLubyte &a()	{	return m_a;	}
 } ALIGN(32);
 
-typedef gliColour<gliTypeUnsignedByte>	gliColourUnsignedByte;
-typedef gliColour<gliTypeFloat>			gliColourFloat;
-typedef gliColour<gliTypeShort>			gliColourShort;
 
-
-template<class GL_TYPE>
-class gliPosition2D : public gliDataList<GL_TYPE, 2>
-{	
-public:
-	gliPosition2D(float ix, float iy=0, float iz=0)
-	{
-		gliDataList<GL_TYPE,2>::m[0] = ix;
-		gliDataList<GL_TYPE,2>::m[1] = iy;
-	}
-	
-	gliPosition2D(int ix=0, int iy=0, int iz=0)
-	{
-		gliDataList<GL_TYPE,2>::m[0] = ix;
-		gliDataList<GL_TYPE,2>::m[1] = iy;
-	}
-} ALIGN(32);
-typedef gliPosition2D<gliTypeFloat>		gliPosition2DFloat;
-typedef gliPosition2D<gliTypeShort>		gliPosition2DShort;
-
-
-
-template<class GL_TYPE>
-class gliPosition3D : public gliDataList<GL_TYPE, 3>
-{	
+////////////////////////////////////////////////////////////////////////////////
+//
+//	OpenGL 3D Position Object
+//
+class gliPosition3D
+{
+	GLshort m_x, m_y, m_z;	
 public:
 	gliPosition3D(float ix, float iy=0, float iz=0)
-	{
-		gliDataList<GL_TYPE,3>::m[0] = ix;
-		gliDataList<GL_TYPE,3>::m[1] = iy;
-		gliDataList<GL_TYPE,3>::m[2] = iz;
-	}
+	: m_x(ix*POSITION_MULT)
+	, m_y(iy*POSITION_MULT)
+	, m_z(iz*POSITION_MULT)
+	{}
 	
-	gliPosition3D(int ix=0, int iy=0, int iz=0)
-	{
-		gliDataList<GL_TYPE,3>::m[0] = ix;
-		gliDataList<GL_TYPE,3>::m[1] = iy;
-		gliDataList<GL_TYPE,3>::m[2] = iy;
-	}
+	gliPosition3D(GLshort ix=0, GLshort iy=0, GLshort iz=0)
+	: m_x(ix)
+	, m_y(iy)
+	, m_z(iz)
+	{}
 } ALIGN(32);
-typedef gliPosition3D<gliTypeFloat>		gliPosition3DFloat;
-typedef gliPosition3D<gliTypeShort>		gliPosition3DShort;
 
 
-
-template<class GL_TYPE>
-class gliTexCoord : public gliDataList<GL_TYPE, 2>
+////////////////////////////////////////////////////////////////////////////////
+//
+//	OpenGL Texture Coordinate
+//
+class gliTexCoord
 {	
+	GLshort m_u, m_v;
 public:
 	gliTexCoord(float iu, float iv=0)
-	{
-		gliDataList<GL_TYPE,2>::m[0] = iu;
-		gliDataList<GL_TYPE,2>::m[1] = iv;
-	}
+	: m_u(iu*1023)
+	, m_v(iv*1023)
+	{}
 	
-	gliTexCoord(int iu=0, int iv=0)
-	{
-		gliDataList<GL_TYPE,2>::m[0] = iu;
-		gliDataList<GL_TYPE,2>::m[1] = iv;
-	}
+	gliTexCoord(GLshort iu=0, GLshort iv=0)
+	: m_u(iu)
+	, m_v(iv)
+	{}
 } ALIGN(32);
-typedef gliTexCoord<gliTypeFloat>		gliTexCoordFloat;
-typedef gliTexCoord<gliTypeShort1024>		gliTexCoordShort;
+
 
 
 //Aggregate object that holds all the needed data for submission to the GL
-template<class GL_COORD, class GL_TEX, class GL_COL>
 class gliSubmit
 {
 public:
-	GL_COORD	position;
-	GL_COL		colour;
-	GL_TEX		texCoord;
+	gliPosition3D		position;
+	gliColour	colour;
+	gliTexCoord		texCoord;
 }ALIGN(32);
 
 
+//Prepare...
+class gliBlendFunc;
+
 //Each of these objects are specific to the GLI object.  That is they
 //define the internal structure!
-template<int maxEle, class GL_COORD, class GL_TEX, class GL_COL>
 class gli
 {
 private:
 	//The OpenGL submission.
-	gliSubmit <GL_COORD, GL_TEX, GL_COL> submission[maxEle];
+	gliSubmit submission[1024];
 	
 	//Immediate texture coordinate and color
-	GL_TEX m_texCoord;
-	GL_COL m_colour;
-	
-	//Drawing mode...
-	short m_mode;
-	short m_curVertex;
+	gliTexCoord 		m_texCoord;
+	gliColour 			m_colour;
 	
 	//Texture info...
 	GLuint m_textureID;
 	GLuint m_boundTexture;
 	
+	//Current blend mode
+	GLenum m_srcBlend;
+	GLenum m_dstBlend;
+	
+	GLenum m_boundSrcBlend;
+	GLenum m_boundDstBlend;
+	
 	//Device info...
 	int		m_width;
 	int		m_height;
 	float	m_scale;
+	
+	
+	//Drawing mode...
+	short m_mode;
+	short m_curVertex;
+
+
+////////////////////////////////////////////////////////////////////////////////
+	//Push a new blending mode
+	inline void blendFunc(GLenum in_srcBlend, GLenum in_dstBlend)
+	{
+		m_srcBlend = in_srcBlend;
+		m_dstBlend = in_dstBlend;
+	}
+	
+	inline GLenum srcBlend() const		{	return m_srcBlend;				}
+	inline GLenum dstBlend() const		{	return m_dstBlend;				}
+	
+	friend class gliBlendFunc;
+	
 	
 public:
 	gli()
@@ -223,6 +182,10 @@ public:
 	, m_width(0)
 	, m_height(0)
 	, m_scale(1)
+	, m_srcBlend(GL_ONE)
+	, m_dstBlend(GL_ONE)
+	, m_boundSrcBlend(GL_ONE)
+	, m_boundDstBlend(GL_ONE)
 	{}
 	
 	//Update device info
@@ -242,14 +205,14 @@ public:
 	inline float deviceScale()					{	return m_scale;					}
 
 	//add texture coordinates...
-	inline void texCoord(float u, float v=0)	{	m_texCoord = GL_TEX(u,v);		}
-	inline void texCoordi(int u, int v=0)		{	m_texCoord = GL_TEX(u,v);		}
+	inline void texCoord(float u, float v=0)	{	m_texCoord = gliTexCoord(u,v);		}
+	inline void texCoordi(GLshort u, GLshort v=0)		{	m_texCoord = gliTexCoord(u,v);		}
 	
 	inline void colour(float r, float g=0, float b=0, float a=0)
-	{	m_colour = GL_COL(r,g,b,a);		}
-	inline void colouri(int r=0, int g=0, int b=0, int a=0)
-	{	m_colour = GL_COL(r,g,b,a);		}
-	inline void colour(const GL_COL &in_color)
+	{	m_colour = gliColour(r,g,b,a);		}
+	inline void colouri(GLubyte r=0, GLubyte g=0, GLubyte b=0, GLubyte a=0)
+	{	m_colour = gliColour(r,g,b,a);		}
+	inline void colour(const gliColour &in_color)
 	{	m_colour = in_color;			}
 	
 	//Call this if binding only needs to occur on the next draw call.
@@ -275,7 +238,7 @@ public:
 	
 	inline void vertex(float x, float y=0, float z=0)
 	{
-		submission[m_curVertex].position = GL_COORD(x,y,z);
+		submission[m_curVertex].position = gliPosition3D(x,y,z);
 		submission[m_curVertex].colour = m_colour;
 		submission[m_curVertex].texCoord = m_texCoord;
 		m_curVertex++;
@@ -291,9 +254,9 @@ public:
 		glPopMatrix();
 	}
 	
-	inline void vertexi(int x=0, int y=0, int z=0)
+	inline void vertexi(GLshort x=0, GLshort y=0, GLshort z=0)
 	{
-		submission[m_curVertex].position = GL_COORD(x,y,z);
+		submission[m_curVertex].position = gliPosition3D(x,y,z);
 		submission[m_curVertex].colour = m_colour;
 		submission[m_curVertex].texCoord = m_texCoord;
 		m_curVertex++;
@@ -323,17 +286,21 @@ public:
 			m_boundTexture = m_textureID;
 			glBindTexture(GL_TEXTURE_2D, m_textureID);
 		}
+		
+		if (m_boundSrcBlend != m_srcBlend || m_boundDstBlend != m_dstBlend)
+		{
+			m_boundSrcBlend = m_srcBlend;
+			m_boundDstBlend = m_dstBlend;
+			glBlendFunc(m_srcBlend, m_dstBlend);
+		}
 	
-		glColorPointer(		submission[0].colour.size(),
-							submission[0].colour.type(),
+		glColorPointer(		4, GL_UNSIGNED_BYTE,
 							sizeof(submission[0]),
 							&(submission[0].colour));
-		glTexCoordPointer(	submission[0].texCoord.size(),
-							submission[0].texCoord.type(),
+		glTexCoordPointer(	2, GL_SHORT,
 							sizeof(submission[0]),
 							&(submission[0].texCoord));
-		glVertexPointer(	submission[0].position.size(),
-							submission[0].position.type(),
+		glVertexPointer(	3, GL_SHORT,
 							sizeof(submission[0]),
 							&(submission[0].position));
 
@@ -341,10 +308,9 @@ public:
 	}
 	
 }ALIGN(32);
-typedef gli<1024, gliPosition2DShort, gliTexCoordShort, gliColourUnsignedByte> gl2D;
 
-extern gl2D gl;
-extern gliColourUnsignedByte gliColourWhite;
+extern gli gl;
+extern gliColour gliColourWhite;
 
 
 static void gliTextureMatrixSetup()
@@ -365,5 +331,37 @@ static void gliModelSetup()
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 }
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+//	OpenGL Blending Mode
+//		Usage: 	instantiate the object.  It will enable the given
+//				blending modes and disable them once it gets popped off
+//				the stack.
+//
+class gliBlendFunc
+{
+	GLenum m_oldSrc;
+	GLenum m_oldDst;
+
+public:
+	gliBlendFunc(GLenum in_src=GL_ONE, GLenum in_dst=GL_ZERO)
+	: m_oldSrc(gl.srcBlend())
+	, m_oldDst(gl.dstBlend())
+	{
+		gl.blendFunc(in_src, in_dst);
+	}
+	
+	inline void blendFunc(GLenum in_src=GL_ONE, GLenum in_dst=GL_ZERO)
+	{
+		gl.blendFunc(in_src, in_dst);
+	}
+	
+	inline ~gliBlendFunc()
+	{
+		gl.blendFunc(m_oldSrc, m_oldDst);
+	}
+};
 
 #endif

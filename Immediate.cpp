@@ -16,5 +16,5 @@
 
 #import "Immediate.h"
 
-gl2D gl;
-gliColourUnsignedByte gliColourWhite(255,255,255,255);
+gli gl;
+gliColour gliColourWhite(255,255,255,255);
