@@ -133,11 +133,13 @@ class gli
 {
 private:
 	//The OpenGL submission.
-	gliSubmit submission[1024];
+	gliSubmit submission[4096];
 	
 	//Immediate texture coordinate and color
 	gliTexCoord 		m_texCoord;
+	
 	gliColour 			m_colour;
+	
 	
 	//Texture info...
 	GLuint m_textureID;
@@ -270,6 +272,11 @@ public:
 	inline void translate(const Coord2D in_t)
 	{
 		translate(in_t.x, in_t.y);
+	}
+	
+	inline void scale(const Coord2D in_t)
+	{
+		glScalef(in_t.x, in_t.y, 1);
 	}
 
 	//Start and end a shape...
