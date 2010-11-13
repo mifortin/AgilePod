@@ -151,23 +151,19 @@ static void blitS(float in_x, float in_y, float in_w, float in_h, float d_x, flo
 }
 
 
-static void fillRect(float in_x, float in_y, float in_w, float in_h)
+static void fillRect(float d_x, float d_y, float in_dw, float in_dh)
 {
-	glDisable(GL_TEXTURE_2D);
-	glDisable(GL_TEXTURE_COORD_ARRAY);
+	gliDisableTexture glETexture;
+	gliDisableTexCoordArray glETextureCoord;
 	
-	float data[12] = {
-		in_x,		in_y,		0,
-		in_x+in_w,	in_y,		0,
-		in_x,		in_y+in_h,	0,
-		in_x+in_w,	in_y+in_h,	0
-	};
-	
-	glVertexPointer(3,GL_FLOAT,sizeof(float)*3,data);
-	glDrawArrays(GL_TRIANGLE_STRIP,0,4);
-	
-	glEnable(GL_TEXTURE_2D);
-	glEnable(GL_TEXTURE_COORD_ARRAY);
+	gl.begin(GL_TRIANGLE_STRIP);
+	{
+		gl.vertex(d_x, d_y);
+		gl.vertex(d_x+in_dw, d_y);
+		gl.vertex(d_x, d_y+in_dh);
+		gl.vertex(d_x+in_dw, d_y+in_dh);
+	}
+	gl.end();
 }
 
 

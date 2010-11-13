@@ -41,6 +41,7 @@ struct particle
 	{}
 };
 
+
 template<class TYPE, class COLOUR, int NUM_PARTICLES>
 class ParticleSystem
 {
@@ -72,9 +73,8 @@ public:
 	
 	inline void updateAndRender(float dt, float diffusion)
 	{
-		glDisable(GL_TEXTURE_2D);
-		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-		glDepthMask(GL_FALSE);
+		gliDisableTexture glETexture;
+		gliEnableColorArray glEColor;
 		
 		COLOUR black(0,0,0,0);
 		
@@ -101,8 +101,7 @@ public:
 					float cy = pos.y;
 					float r = s/2;
 					
-					glTranslatef(cx,cy,pos.z);
-					glScalef(1.0f/POSITION_MULT, 1.0f/POSITION_MULT, 1.0f/POSITION_MULT);
+					gl.translate(cx,cy, pos.z);
 					gl.begin(GL_TRIANGLE_FAN);
 					{
 						//Center
@@ -120,19 +119,13 @@ public:
 						gl.vertex(sinf(0.0f)*r, cosf(0.0f)*r, 0.0f);
 					}
 					gl.end();
-					glScalef(POSITION_MULT, POSITION_MULT, POSITION_MULT);
-					glTranslatef(-cx,-cy,-pos.z);
+					gl.translate(-cx,-cy, -pos.z);
 				}
 				
 				particles[i].pos += particles[i].velocity*dt;
 				particles[i].velocity *= diffusion;
 			}
 		}
-		
-
-		glDepthMask(GL_TRUE);
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		glEnable(GL_TEXTURE_2D);
 	}
 };
 

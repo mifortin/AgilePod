@@ -119,13 +119,27 @@ class gliSubmit
 {
 public:
 	gliPosition3D		position;
-	gliColour	colour;
-	gliTexCoord		texCoord;
+	gliColour			colour;
+	gliTexCoord			texCoord;
 }ALIGN(32);
 
 
 //Prepare...
 class gliBlendFunc;
+template<int G, int I> class gliEnable;
+template<int G, int I> class gliDisable;
+
+typedef gliEnable<GL_TEXTURE_2D,			0>	gliEnableTexture;
+typedef gliEnable<GL_BLEND,					1>	gliEnableBlendFunc;
+typedef gliEnable<GL_COLOR_ARRAY,			2>	gliEnableColorArray;
+typedef gliEnable<GL_TEXTURE_COORD_ARRAY,	3>	gliEnableTexCoordArray;
+
+
+typedef gliDisable<GL_TEXTURE_2D,			0>	gliDisableTexture;
+typedef gliDisable<GL_BLEND,				1>	gliDisableBlendFunc;
+typedef gliDisable<GL_COLOR_ARRAY,			2>	gliDisableColorArray;
+typedef gliDisable<GL_TEXTURE_COORD_ARRAY,	3>	gliDisableTexCoordArray;
+
 
 //Each of these objects are specific to the GLI object.  That is they
 //define the internal structure!
@@ -173,9 +187,18 @@ private:
 	
 	inline GLenum srcBlend() const		{	return m_srcBlend;				}
 	inline GLenum dstBlend() const		{	return m_dstBlend;				}
-	
+
+
+////////////////////////////////////////////////////////////////////////////////
+	//Enable/disable...
 	friend class gliBlendFunc;
+	friend class gliEnable<GL_TEXTURE_2D, 	 0	>;
+	friend class gliEnable<GL_BLEND,		 1	>;
+	friend class gliEnable<GL_COLOR_ARRAY,	 2	>;
+	friend class gliEnable<GL_TEXTURE_COORD_ARRAY,	 3	>;
 	
+	char m_enable[4];					//Our logical state
+	char m_pvtEnable[4];				//Actual state..
 	
 public:
 	gli()
@@ -188,7 +211,10 @@ public:
 	, m_dstBlend(GL_ONE)
 	, m_boundSrcBlend(GL_ONE)
 	, m_boundDstBlend(GL_ONE)
-	{}
+	{
+		memset(m_enable, 0, sizeof(m_enable));
+		memset(m_pvtEnable, 0, sizeof(m_pvtEnable));
+	}
 	
 	//Update device info
 	inline void specifyDeviceSize(int in_width, int in_height)
@@ -215,7 +241,7 @@ public:
 	inline void colouri(GLubyte r=0, GLubyte g=0, GLubyte b=0, GLubyte a=0)
 	{	m_colour = gliColour(r,g,b,a);		}
 	inline void colour(const gliColour &in_color)
-	{	m_colour = in_color;			}
+	{	m_colour = in_color;				}
 	
 	//Call this if binding only needs to occur on the next draw call.
 	//	(hint - usually call this function)
@@ -288,25 +314,74 @@ public:
 
 	inline void end()
 	{
-		if (m_boundTexture !=  m_textureID)
+		//Check for texturing...
+		if (m_enable[0] != m_pvtEnable[0])
 		{
-			m_boundTexture = m_textureID;
-			glBindTexture(GL_TEXTURE_2D, m_textureID);
+			m_pvtEnable[0] = m_enable[0];
+			if (m_enable[0])
+				glEnable(GL_TEXTURE_2D);
+			else
+				glDisable(GL_TEXTURE_2D);
 		}
 		
-		if (m_boundSrcBlend != m_srcBlend || m_boundDstBlend != m_dstBlend)
+		if (m_enable[0])
 		{
-			m_boundSrcBlend = m_srcBlend;
-			m_boundDstBlend = m_dstBlend;
-			glBlendFunc(m_srcBlend, m_dstBlend);
+			if (m_boundTexture !=  m_textureID)
+			{
+				m_boundTexture = m_textureID;
+				glBindTexture(GL_TEXTURE_2D, m_textureID);
+			}
+		}
+		
+		//Check for blending...
+		if (m_enable[1] != m_pvtEnable[1])
+		{
+			m_pvtEnable[1] = m_enable[1];
+			if (m_enable[1])
+				glEnable(GL_BLEND);
+			else
+				glDisable(GL_BLEND);
+		}
+		
+		if (m_enable[1])
+		{
+			if (m_boundSrcBlend != m_srcBlend || m_boundDstBlend != m_dstBlend)
+			{
+				m_boundSrcBlend = m_srcBlend;
+				m_boundDstBlend = m_dstBlend;
+				glBlendFunc(m_srcBlend, m_dstBlend);
+			}
 		}
 	
-		glColorPointer(		4, GL_UNSIGNED_BYTE,
-							sizeof(submission[0]),
-							&(submission[0].colour));
-		glTexCoordPointer(	2, GL_SHORT,
-							sizeof(submission[0]),
-							&(submission[0].texCoord));
+		//Set up colour arrays...
+		if (m_enable[2] != m_pvtEnable[2])
+		{
+			m_pvtEnable[2] = m_enable[2];
+			if (m_enable[2])
+				glEnableClientState(GL_COLOR_ARRAY);
+			else
+				glDisableClientState(GL_COLOR_ARRAY);
+		}
+		if (m_enable[2])
+			glColorPointer(		4, GL_UNSIGNED_BYTE,
+								sizeof(submission[0]),
+								&(submission[0].colour));
+		
+		//Set up texture coordinate arrays...
+		if (m_enable[3] != m_pvtEnable[3])
+		{
+			m_pvtEnable[3] = m_enable[3];
+			if (m_enable[3])
+				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+			else
+				glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+		}
+		if (m_enable[3])
+			glTexCoordPointer(	2, GL_SHORT,
+								sizeof(submission[0]),
+								&(submission[0].texCoord));
+		
+		//Vertices and drawing the arrays at the end...
 		glVertexPointer(	3, GL_SHORT,
 							sizeof(submission[0]),
 							&(submission[0].position));
@@ -369,6 +444,46 @@ public:
 	{
 		gl.blendFunc(m_oldSrc, m_oldDst);
 	}
+};
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+//	OpenGL Enable Disable
+//		Usage:	enables and disables GL states.
+//				use the provided typedefs...
+//		Impl:	we use a template system - an index into an array in
+//				the global GL object, and the GL enable/disable key.
+//
+template<int GL_MODE, int INDEX>
+class gliEnable
+{
+	char m_prevState;
+public:
+	gliEnable(bool in_enable = true)
+	{
+		m_prevState = gl.m_enable[INDEX];
+		gl.m_enable[INDEX] = in_enable ? 1 : 0;
+	}
+	
+	inline void enable(bool in_enable)
+	{
+		gl.m_enable[INDEX] = in_enable ? 1 : 0;
+	}
+	
+	inline ~gliEnable()
+	{
+		gl.m_enable[INDEX] = m_prevState;
+	}
+};
+
+template<int GL_MODE, int INDEX>
+class gliDisable : public gliEnable<GL_MODE, INDEX>
+{
+public:
+	gliDisable(bool in_enable = false)
+	: gliEnable<GL_MODE, INDEX>::gliEnable(in_enable)
+	{}
 };
 
 #endif
