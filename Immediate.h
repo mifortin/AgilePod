@@ -125,6 +125,9 @@ public:
 
 
 //Prepare...
+class Texture;
+class FrameBuffer;
+
 class gliBlendFunc;
 template<int G, int I> class gliEnable;
 template<int G, int I> class gliDisable;
@@ -200,6 +203,34 @@ private:
 	char m_enable[4];					//Our logical state
 	char m_pvtEnable[4];				//Actual state..
 	
+	
+////////////////////////////////////////////////////////////////////////////////
+	//Texturing...
+	friend class FrameBuffer;
+	friend class Texture;
+	
+	
+	//Call this if binding only needs to occur on the next draw call.
+	//	(hint - usually call this function)
+	inline GLuint useTexture(GLuint in_textureID)
+	{
+		int r = m_textureID;
+		m_textureID = in_textureID;
+		return r;
+	}
+	
+	//Upload RGBA image data for a texture.
+	inline void uploadImageData(int width, int height, void *imageData = NULL, int mipmap=0)
+	{
+		if (m_boundTexture !=  m_textureID)
+		{
+			m_boundTexture = m_textureID;
+			glBindTexture(GL_TEXTURE_2D, m_textureID);
+		}
+		
+		glTexImage2D(GL_TEXTURE_2D, mipmap, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
+	}
+	
 public:
 	gli()
 	: m_textureID(0)
@@ -242,27 +273,6 @@ public:
 	{	m_colour = gliColour(r,g,b,a);		}
 	inline void colour(const gliColour &in_color)
 	{	m_colour = in_color;				}
-	
-	//Call this if binding only needs to occur on the next draw call.
-	//	(hint - usually call this function)
-	inline GLuint useTexture(GLuint in_textureID)
-	{
-		int r = m_textureID;
-		m_textureID = in_textureID;
-		return r;
-	}
-	
-	//Upload RGBA image data for a texture.
-	inline void uploadImageData(void *imageData, int width, int height, int mipmap=0)
-	{
-		if (m_boundTexture !=  m_textureID)
-		{
-			m_boundTexture = m_textureID;
-			glBindTexture(GL_TEXTURE_2D, m_textureID);
-		}
-		
-		glTexImage2D(GL_TEXTURE_2D, mipmap, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
-	}
 	
 	inline void vertex(float x, float y=0, float z=0)
 	{
@@ -466,9 +476,14 @@ public:
 		gl.m_enable[INDEX] = in_enable ? 1 : 0;
 	}
 	
-	inline void enable(bool in_enable)
+	inline void enable(bool in_enable = true)
 	{
 		gl.m_enable[INDEX] = in_enable ? 1 : 0;
+	}
+	
+	inline void disable()
+	{
+		enable(false);
 	}
 	
 	inline ~gliEnable()

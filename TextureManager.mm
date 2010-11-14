@@ -140,7 +140,7 @@ void Texture::lazyLoad()
 		glGenTextures(1, &m_texID);
 		
 		gl.useTexture(m_texID);
-		gl.uploadImageData(imageData, width, height);
+		gl.uploadImageData(width, height, imageData);
 		
 		free(imageData);
 		
