@@ -17,14 +17,15 @@
 #ifndef FRAMEBUFFER_H
 #define FRAMEBUFFER_H
 
-#import <OpenGLES/ES1/gl.h>
-#import <OpenGLES/ES1/glext.h>
-
+#include <OpenGLES/ES1/gl.h>
+#include <OpenGLES/ES1/glext.h>
+#include "Immediate.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 //
 //	FrameBuffer manages a FrameBuffer.
 //
+class BindTexture;
 class RenderToTarget;
 class FrameBuffer
 {
@@ -41,6 +42,13 @@ private:
 
 	//To minimize the public interface...
 	friend class RenderToTarget;
+	friend class BindTexture;
+	
+	inline GLuint use()
+	{
+		if (m_texID == 0)	lazyInit();
+		return gl.useTexture(m_texID);
+	}
 
 public:
 	//Creates a new FrameBuffer

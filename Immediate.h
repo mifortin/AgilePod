@@ -127,6 +127,7 @@ public:
 //Prepare...
 class Texture;
 class FrameBuffer;
+class BindTexture;
 
 class gliBlendFunc;
 template<int G, int I> class gliEnable;
@@ -208,7 +209,7 @@ private:
 	//Texturing...
 	friend class FrameBuffer;
 	friend class Texture;
-	
+	friend class BindTexture;
 	
 	//Call this if binding only needs to occur on the next draw call.
 	//	(hint - usually call this function)

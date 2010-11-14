@@ -15,6 +15,7 @@
  */
 
 #include "Immediate.h"
+#include "FrameBuffer.h"
 #include "Smart.h"
 #include "Camera.h"
 
@@ -24,6 +25,7 @@
 
 //A way to manage the textures on-demand.
 //	We only load up the proper textures based upon screen size information.
+class BindTexture;
 class Texture
 {
 private:
@@ -39,9 +41,8 @@ private:
 	//Call this to actually load the image(s)
 	void lazyLoad();
 	
-public:
-	Texture(const char *in_textureName);
-	
+	//Reduce public surface for texturing...
+	friend class BindTexture;
 	//Lazily bind the texture.  That is; it is only bound
 	//upon rendering - and only if the texture ID changed.
 	inline GLuint use()
@@ -51,6 +52,9 @@ public:
 		return gl.useTexture(m_texID);
 	}
 	
+public:
+	Texture(const char *in_textureName);
+	
 	inline Coord2D			size()	const	{	return m_size;	}
 	
 	virtual ~Texture()
@@ -59,4 +63,37 @@ public:
 	}
 };
 
+
+//A way to safely bind textures...
+class BindTexture
+{
+private:
+	GLuint m_prev;
+
+public:
+	BindTexture(Texture *t)
+	{
+		m_prev = t->use();
+	}
+	
+	BindTexture(FrameBuffer *f)
+	{
+		m_prev = f->use();
+	}
+	
+	void rebind(Texture *t)
+	{
+		t->use();
+	}
+	
+	void rebind(FrameBuffer *f)
+	{
+		f->use();
+	}
+
+	~BindTexture()
+	{
+		gl.useTexture(m_prev);
+	}
+};
 #endif
