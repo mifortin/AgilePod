@@ -66,7 +66,7 @@ public:
 	void downloadFrameBuffer(int8_t *out_dest);
 	
 	//The size of the buffer (minimum required for download)
-	int bufferSize()	{		return m_width*m_height*4;	}
+	int bufferSizeInBytes()	{		return m_width*m_height*4;	}
 	
 	//Frees the FrameBuffer object
 	~FrameBuffer();
