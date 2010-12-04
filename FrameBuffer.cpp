@@ -85,6 +85,26 @@ FrameBuffer::FrameBuffer(GLuint in_renderBuffer)
 }
 
 
+void FrameBuffer::downloadFrameBuffer(int8_t *out_dest)
+{
+	assert(g_curFB != NULL);
+	
+	if (this != g_curFB)
+	{
+		RenderToTarget t(this);
+		glReadPixels(	0,0, m_width, m_height, GL_RGBA,
+						GL_UNSIGNED_BYTE,
+						out_dest);
+	}
+	else
+	{
+		glReadPixels(	0,0, m_width, m_height, GL_RGBA,
+						GL_UNSIGNED_BYTE,
+						out_dest);
+	}
+}
+
+
 FrameBuffer::~FrameBuffer()
 {
 	if (m_texID != 0)

@@ -128,6 +128,7 @@ public:
 class Texture;
 class FrameBuffer;
 class BindTexture;
+class Draw;
 
 class gliBlendFunc;
 template<int G, int I> class gliEnable;
@@ -232,90 +233,11 @@ private:
 		glTexImage2D(GL_TEXTURE_2D, mipmap, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
 	}
 	
-public:
-	gli()
-	: m_textureID(0)
-	, m_boundTexture(0)
-	, m_width(0)
-	, m_height(0)
-	, m_scale(1)
-	, m_srcBlend(GL_ONE)
-	, m_dstBlend(GL_ONE)
-	, m_boundSrcBlend(GL_ONE)
-	, m_boundDstBlend(GL_ONE)
-	{
-		memset(m_enable, 0, sizeof(m_enable));
-		memset(m_pvtEnable, 0, sizeof(m_pvtEnable));
-	}
 	
-	//Update device info
-	inline void specifyDeviceSize(int in_width, int in_height)
-	{
-		m_width = in_width;
-		m_height = in_height;
-	}
+////////////////////////////////////////////////////////////////////////////////
+	//Drawing...
+	friend class Draw;
 	
-	inline void specifyDeviceScale(float in_scale)
-	{
-		m_scale = in_scale;
-	}
-	
-	inline int deviceWidth()					{	return m_width;					}
-	inline int deviceHeight()					{	return m_height;				}
-	inline float deviceScale()					{	return m_scale;					}
-
-	//add texture coordinates...
-	inline void texCoord(float u, float v=0)	{	m_texCoord = gliTexCoord(u,v);		}
-	inline void texCoordi(GLshort u, GLshort v=0)		{	m_texCoord = gliTexCoord(u,v);		}
-	
-	inline void colour(float r, float g=0, float b=0, float a=0)
-	{	m_colour = gliColour(r,g,b,a);		}
-	inline void colouri(GLubyte r=0, GLubyte g=0, GLubyte b=0, GLubyte a=0)
-	{	m_colour = gliColour(r,g,b,a);		}
-	inline void colour(const gliColour &in_color)
-	{	m_colour = in_color;				}
-	
-	inline void vertex(float x, float y=0, float z=0)
-	{
-		submission[m_curVertex].position = gliPosition3D(x,y,z);
-		submission[m_curVertex].colour = m_colour;
-		submission[m_curVertex].texCoord = m_texCoord;
-		m_curVertex++;
-	}
-	
-	inline void pushMatrix()
-	{
-		glPushMatrix();
-	}
-	
-	inline void popMatrix()
-	{
-		glPopMatrix();
-	}
-	
-	inline void vertexi(GLshort x=0, GLshort y=0, GLshort z=0)
-	{
-		submission[m_curVertex].position = gliPosition3D(x,y,z);
-		submission[m_curVertex].colour = m_colour;
-		submission[m_curVertex].texCoord = m_texCoord;
-		m_curVertex++;
-	}
-	
-	inline void translate(float dx, float dy=0, float dz = 0)
-	{
-		glTranslatef(dx*POSITION_MULT, dy*POSITION_MULT, dz*POSITION_MULT);
-	}
-	
-	inline void translate(const Coord2D in_t)
-	{
-		translate(in_t.x, in_t.y);
-	}
-	
-	inline void scale(const Coord2D in_t)
-	{
-		glScalef(in_t.x, in_t.y, 1);
-	}
-
 	//Start and end a shape...
 	inline void begin(short mode)
 	{
@@ -398,6 +320,93 @@ public:
 							&(submission[0].position));
 
 		glDrawArrays(m_mode, 0, m_curVertex);
+	}
+	
+	inline void texCoord(float u, float v=0)
+	{	m_texCoord = gliTexCoord(u,v);		}
+	
+	inline void texCoordi(GLshort u, GLshort v=0)
+	{	m_texCoord = gliTexCoord(u,v);		}
+	
+	inline void colour(float r, float g=0, float b=0, float a=0)
+	{	m_colour = gliColour(r,g,b,a);		}
+	inline void colouri(GLubyte r=0, GLubyte g=0, GLubyte b=0, GLubyte a=0)
+	{	m_colour = gliColour(r,g,b,a);		}
+	inline void colour(const gliColour &in_color)
+	{	m_colour = in_color;				}
+	
+	inline void vertex(float x, float y=0, float z=0)
+	{
+		submission[m_curVertex].position = gliPosition3D(x,y,z);
+		submission[m_curVertex].colour = m_colour;
+		submission[m_curVertex].texCoord = m_texCoord;
+		m_curVertex++;
+	}
+	
+	inline void vertexi(GLshort x=0, GLshort y=0, GLshort z=0)
+	{
+		submission[m_curVertex].position = gliPosition3D(x,y,z);
+		submission[m_curVertex].colour = m_colour;
+		submission[m_curVertex].texCoord = m_texCoord;
+		m_curVertex++;
+	}
+	
+public:
+	gli()
+	: m_textureID(0)
+	, m_boundTexture(0)
+	, m_width(0)
+	, m_height(0)
+	, m_scale(1)
+	, m_srcBlend(GL_ONE)
+	, m_dstBlend(GL_ONE)
+	, m_boundSrcBlend(GL_ONE)
+	, m_boundDstBlend(GL_ONE)
+	{
+		memset(m_enable, 0, sizeof(m_enable));
+		memset(m_pvtEnable, 0, sizeof(m_pvtEnable));
+	}
+	
+	//Update device info
+	inline void specifyDeviceSize(int in_width, int in_height)
+	{
+		m_width = in_width;
+		m_height = in_height;
+	}
+	
+	inline void specifyDeviceScale(float in_scale)
+	{
+		m_scale = in_scale;
+	}
+	
+	inline int deviceWidth()					{	return m_width;					}
+	inline int deviceHeight()					{	return m_height;				}
+	inline float deviceScale()					{	return m_scale;					}
+
+	
+	inline void pushMatrix()
+	{
+		glPushMatrix();
+	}
+	
+	inline void popMatrix()
+	{
+		glPopMatrix();
+	}
+	
+	inline void translate(float dx, float dy=0, float dz = 0)
+	{
+		glTranslatef(dx*POSITION_MULT, dy*POSITION_MULT, dz*POSITION_MULT);
+	}
+	
+	inline void translate(const Coord2D in_t)
+	{
+		translate(in_t.x, in_t.y);
+	}
+	
+	inline void scale(const Coord2D in_t)
+	{
+		glScalef(in_t.x, in_t.y, 1);
 	}
 	
 }ALIGN(32);
@@ -500,6 +509,51 @@ public:
 	gliDisable(bool in_enable = false)
 	: gliEnable<GL_MODE, INDEX>::gliEnable(in_enable)
 	{}
+};
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+//	OpenGL Drawing Routines
+//		Usage:	Instantiate within the context which drawing is desired...
+//
+class Draw
+{
+public:
+	//Make sure that each begin has an associated end
+	Draw(short in_mode)
+	{
+		gl.begin(in_mode);
+	}
+	
+	~Draw()
+	{
+		gl.end();
+	}
+	
+	//Forward all the vertex and texture stuff...
+	inline void texCoord(float u, float v=0)
+	{	gl.texCoord(u,v);		}
+	
+	inline void texCoordi(GLshort u, GLshort v=0)
+	{	gl.texCoordi(u,v);		}
+	
+	inline void colour(float r, float g=0, float b=0, float a=0)
+	{	gl.colour(r,g,b,a);		}
+	inline void colouri(GLubyte r=0, GLubyte g=0, GLubyte b=0, GLubyte a=0)
+	{	gl.colouri(r,g,b,a);		}
+	inline void colour(const gliColour &in_colour)
+	{	gl.colour(in_colour);				}
+	
+	inline void vertex(float x, float y=0, float z=0)
+	{
+		gl.vertex(x,y,z);
+	}
+	
+	inline void vertexi(GLshort x=0, GLshort y=0, GLshort z=0)
+	{
+		gl.vertexi(x,y,z);
+	}
 };
 
 #endif

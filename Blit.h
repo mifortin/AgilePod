@@ -112,42 +112,40 @@ static void blit(Coord2D in_tex, Coord2D in_dest)
 {
 	const float FW = (float)W;
 	const float FH = (float)H;
-	gl.begin(GL_TRIANGLE_STRIP);
 	{
-		gl.texCoordi(in_tex.x*FW, in_tex.y*FH);
-		gl.vertex(in_dest.x, in_dest.y);
+		Draw d(GL_TRIANGLE_STRIP);
+		d.texCoordi(in_tex.x*FW, in_tex.y*FH);
+		d.vertex(in_dest.x, in_dest.y);
 		
-		gl.texCoordi(in_tex.x*FW+FW, in_tex.y*FH);
-		gl.vertex(in_dest.x+FW, in_dest.y);
+		d.texCoordi(in_tex.x*FW+FW, in_tex.y*FH);
+		d.vertex(in_dest.x+FW, in_dest.y);
 		
-		gl.texCoordi(in_tex.x*FW, in_tex.y*FH+FH);
-		gl.vertex(in_dest.x, in_dest.y+FH);
+		d.texCoordi(in_tex.x*FW, in_tex.y*FH+FH);
+		d.vertex(in_dest.x, in_dest.y+FH);
 		
-		gl.texCoordi(in_tex.x*FW+FW, in_tex.y*FH+FH);
-		gl.vertex(in_dest.x+FW, in_dest.y+FH);
+		d.texCoordi(in_tex.x*FW+FW, in_tex.y*FH+FH);
+		d.vertex(in_dest.x+FW, in_dest.y+FH);
 	}
-	gl.end();
 }
 
 
 static void blitS(float in_x, float in_y, float in_w, float in_h, float d_x, float d_y,
 		   float in_dw, float in_dh)
 {
-	gl.begin(GL_TRIANGLE_STRIP);
 	{
-		gl.texCoordi(in_x, in_y);
-		gl.vertex(d_x, d_y);
+		Draw d(GL_TRIANGLE_STRIP);
+		d.texCoordi(in_x, in_y);
+		d.vertex(d_x, d_y);
 		
-		gl.texCoordi(in_x+in_w, in_y);
-		gl.vertex(d_x+in_dw, d_y);
+		d.texCoordi(in_x+in_w, in_y);
+		d.vertex(d_x+in_dw, d_y);
 		
-		gl.texCoordi(in_x, in_y+in_h);
-		gl.vertex(d_x, d_y+in_dh);
+		d.texCoordi(in_x, in_y+in_h);
+		d.vertex(d_x, d_y+in_dh);
 		
-		gl.texCoordi(in_x+in_w, in_y+in_h);
-		gl.vertex(d_x+in_dw, d_y+in_dh);
+		d.texCoordi(in_x+in_w, in_y+in_h);
+		d.vertex(d_x+in_dw, d_y+in_dh);
 	}
-	gl.end();
 }
 
 
@@ -156,14 +154,13 @@ static void fillRect(float d_x, float d_y, float in_dw, float in_dh)
 	gliDisableTexture glETexture;
 	gliDisableTexCoordArray glETextureCoord;
 	
-	gl.begin(GL_TRIANGLE_STRIP);
 	{
-		gl.vertex(d_x, d_y);
-		gl.vertex(d_x+in_dw, d_y);
-		gl.vertex(d_x, d_y+in_dh);
-		gl.vertex(d_x+in_dw, d_y+in_dh);
+		Draw d(GL_TRIANGLE_STRIP);
+		d.vertex(d_x, d_y);
+		d.vertex(d_x+in_dw, d_y);
+		d.vertex(d_x, d_y+in_dh);
+		d.vertex(d_x+in_dw, d_y+in_dh);
 	}
-	gl.end();
 }
 
 

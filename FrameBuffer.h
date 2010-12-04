@@ -62,6 +62,13 @@ public:
 	//	this is the object that is bound to draw to screen)
 	FrameBuffer(GLuint in_renderBuffer);
 	
+	//Captures the contents of a FrameBuffer to a buffer.
+	void downloadFrameBuffer(int8_t *out_dest);
+	
+	//The size of the buffer (minimum required for download)
+	int bufferSize()	{		return m_width*m_height*4;	}
+	
+	//Frees the FrameBuffer object
 	~FrameBuffer();
 	
 	//Getters...
