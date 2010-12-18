@@ -74,7 +74,7 @@ public:
 	
 	inline T* operator=(T *in_init)
 	{
-		if (m_many)	delete m_many;
+		if (m_many)	delete []m_many;
 		m_many = in_init;
 		
 		return m_many;
