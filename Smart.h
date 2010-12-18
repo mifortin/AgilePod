@@ -57,6 +57,37 @@ public:
 };
 
 
+//A simple smart-pointer for arrays of data to be deleted...
+template<class T>
+class Many
+{
+private:
+	T *m_many;
+	
+	//Prevent copies (bad things can happen!)
+	Many(Many &toCopy)	{}
+
+public:
+	Many(T *in_init = NULL)
+	: m_many(in_init)
+	{}
+	
+	inline T* operator=(T *in_init)
+	{
+		if (m_many)	delete m_many;
+		m_many = in_init;
+		
+		return m_many;
+	}
+	
+	inline T* operator()()	const	{	return m_many;	}
+	
+	inline T* operator->()	const	{	return m_many;	}
+	
+	virtual ~Many()	{	if(m_many)		delete []m_many;	}
+};
+
+
 //Implementation of the One object for standard C objects.
 //	The reason to not use polymorphism is to enable the compiler to see
 //	more means to optimize the code.  Also removes any virtual functions.

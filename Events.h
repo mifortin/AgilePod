@@ -17,6 +17,16 @@
 #ifndef EVENTS_H
 #define EVENTS_H
 
+
+//For objects that can be drawn onto the screen...
+class IDrawable
+{
+public:
+	virtual void onLogic()													= 0;
+	virtual void onRender()													= 0;
+};
+
+
 //The touch events we can get (note - we don't differentiate between touches)
 class ITouchEvent
 {

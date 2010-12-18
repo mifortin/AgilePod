@@ -55,7 +55,11 @@ private:
 public:
 	Texture(const char *in_textureName);
 	
-	inline Coord2D			size()	const	{	return m_size;	}
+	inline Coord2D			size()
+	{
+		if (m_texID == 0)	lazyLoad();	
+		return m_size;
+	}
 	
 	virtual ~Texture()
 	{
