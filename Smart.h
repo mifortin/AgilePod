@@ -20,12 +20,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-/*! \file Smart.h	C/C++ Smart Pointers
+/*! \file Smart.h	\brief C/C++ Smart Pointers
+	
 	A list of smart pointers to make memory management much more enjoyable!
+*/
+
+/*! \defgroup SmartPointers Smart Pointers for Enjoyable Memory Managment.
+	
+	Delete is very easy to forget.  To simplify the task, we provide some
+	simple smart pointers.  Just don't forget them!
 */
 
 //! Holds a single instance of an object.
 /*!
+\ingroup SmartPointers
 A simple smart-pointer.  We have a reference to an object.  When a new
 object is added, we delete the previous and save the new reference.
 
@@ -112,6 +120,7 @@ b->hello();
 
 //! A smart pointer for C++ arrays
 /*!
+\ingroup SmartPointers
 	Since C++ requires arrays of objects to be deleted differently, we
 	created this object to worry about the details.
 */
