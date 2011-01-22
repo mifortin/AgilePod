@@ -30,8 +30,16 @@
 	application, just that it happens... like magic!
 */
 
+/*! \defgroup DataSource DataSource: Loading generated or external data into the system.
+	
+	IDataSource is the most basic interface that everything inherits from.
+	
+	IImageDataSource specializes IDataSource for image data.
+*/
+
 //! Abstract representation of a source of data
 /*!
+	\ingroup DataSource
 	Consider a texture object.  Data may come from an image (all too often)
 	and need special consideration depending upon the underlying device.
 	Alternatively, data may come a generated texture (like a font).
@@ -68,9 +76,13 @@ public:
 
 //! Specific data source for images
 /*!
+	\ingroup DataSource
 	We opted to not have metadata interfaces for the DataSource as it would
 	look bizarre and messy within the code.  Specialized classes will look
 	better.
+	
+	Use \ref CreateImageDataSourceFromFile to create an IImageDataSource from
+	a file within the application bundle.
 */
 class IImageDataSource : public IDataSource
 {
@@ -82,5 +94,24 @@ class IImageDataSource : public IDataSource
 	virtual Coord2DI size()									= 0;
 };
 
+
+/*! \page ExampleLoadTextureFile Example How to Load Textures
+	Here's how to load a texture from a file:
+	
+	\code
+		Texture *x = new Texture(CreateImageDataSourceFromFile("FileName"));
+	\endcode
+*/
+
+//! Creates an image data source from a file
+/*!
+	\ingroup DataSource
+	We assume that the file is of type PNG.  Upon calling this function, we
+	simply return a new object (caller has to free) that saves the file
+	name.  Upon a call to "data", the requested data is loaded and presented.
+	
+	All cached data is destroyed once onLowMemory is called.
+*/
+IImageDataSource *CreateImageDataSourceFromFile(const char *in_szFile);
 
 #endif
