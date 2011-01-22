@@ -1,5 +1,5 @@
 /*
-   Copyright 2010 Michael Fortin
+   Copyright 2011 Michael Fortin
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -20,11 +20,25 @@
 #include <CoreGraphics/CoreGraphics.h>
 #include "Restorer.h"
 
+
+//! Integer 2D Coordinate
+class Coord2DI
+{
+public:
+	//! X component
+	short x;
+	
+	//! Y component
+	short y;
+};
+
+
 ////////////////////////////////////////////////////////////////////////////////
 class Coord2D;
 
 static Coord2D operator/(const Coord2D &a, const float b);
 
+//! Floating-point 2D Coordinate
 class Coord2D : public CGPoint
 {
 public:
