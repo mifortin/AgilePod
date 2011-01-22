@@ -33,7 +33,7 @@ private:
 	GLuint 				m_texID;
 	
 	//We only create the texture when needed...
-	OneCMalloc<char>	m_fileName;
+	Many<char>	m_fileName;
 	
 	//Allow a way to get the size...
 	Coord2D				m_size;

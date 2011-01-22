@@ -30,6 +30,19 @@ public:
 	
 	//! Y component
 	short y;
+	
+	//! Initializes a 2D coordinate object
+	/*! Initializes an instance of Coord2DI
+		\param[in]		in_x		X coordinate.  Default is 0.
+		\param[in]		in_y		Y coordinate.  Default is 0.
+		
+		\post{ A valid Coord2DI object following garbage-in garbage-out
+				principles! }
+	*/
+	Coord2DI(short in_x=0, short in_y=0)
+	: x(in_x)
+	, y(in_y)
+	{ }
 };
 
 

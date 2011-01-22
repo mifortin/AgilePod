@@ -25,7 +25,7 @@ Texture::Texture(const char *in_textureName)
 : m_texID(0)
 {
 	int szLen = strlen(in_textureName);
-	m_fileName.malloc(szLen+1);
+	m_fileName = new char[szLen+1];
 	strcpy(m_fileName(), in_textureName);
 }
 

@@ -15,6 +15,8 @@
  */
 
 #include "DataSource.h"
+#import "SmartMM.h"
+#import "Immediate.h"
 
 /*!	\file ImageDataSource.cpp
 	\brief Specification of the image data source for images stored in files.
@@ -27,4 +29,40 @@
 */
 class ImageFileDataSource : public IImageDataSource
 {
+private:
+	OneNS<NSString*>		m_fileName;
+	Many<GLubyte>			m_fileData;
+
+public:
+	ImageFileDataSource(const char *in_szFile)
+	{
+		m_fileName = [NSString stringWithUTF8String:in_szFile];
+	}
+	
+	
+////////////////////////////////////////////////////////////////////////////////
+//	IDataSource
+	virtual void *data()
+	{
+		return NULL;
+	}
+	
+	
+	virtual void onLowMemory()
+	{
+	}
+
+
+////////////////////////////////////////////////////////////////////////////////
+//	IImageDataSource
+	virtual Coord2DI size()
+	{
+		return Coord2DI(0,0);
+	}
 };
+
+
+IImageDataSource *CreateImageDataSourceFromFile(const char* in_szFile)
+{
+	return new ImageFileDataSource(in_szFile);
+}
