@@ -1,5 +1,5 @@
 /*
-   Copyright 2010 Michael Fortin
+   Copyright 2010,2011 Michael Fortin
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
 
 /*! \file Smart.h	\brief C/C++ Smart Pointers
 	
@@ -30,6 +31,93 @@
 	Delete is very easy to forget.  To simplify the task, we provide some
 	simple smart pointers.  Just don't forget them!
 */
+
+template<class T>
+class RCOne;
+
+//! Reference counting
+/*! Inherit this object if memory allocation will follow a reference-counting
+	scheme */
+class RC
+{
+private:
+	//! The number of references.  Initially 0.
+	/*! The caller is responsible for initially retaining the object.
+		Use RCOne for this task. */
+	int m_count;
+	
+	//! Increases the retain count
+	void retain()						{	m_count++;	}
+	
+	//! Decreases the retain count
+	void release()
+	{
+		m_count--;
+		assert(m_count >= 0);
+		if (m_count == 0)	delete this;
+	}
+	
+	//! Required...
+	template<class T>
+	friend class RCOne;
+
+public:
+	//! Initializes the retain count to 0
+	/*! Must be assigned to a type RCOne */
+	RC()	: m_count(0)				{}
+
+	//! A copy is initially initialized with a count of 0
+	/*! Must be assigned to a type RCOne */
+	RC(const RC &in_o)	: m_count(0)	{}
+	
+	//! Virtual destructor required
+	virtual ~RC()
+	{}
+};
+
+//! Reference-counted smart pointer
+/*! For more complex memory management schemes, we need a way to specify when
+	two objects own a single object.
+	
+	The template parameter T must be of type RC*/
+template<class T>
+class RCOne
+{
+private:
+	//! An object that inherits from RC
+	T	*m_obj;
+
+public:
+	//! Initialize RCOne
+	/*!	\param in_obj[in]	Object do retain */
+	RCOne(T *in_obj = NULL)
+	: m_obj(in_obj)
+	{
+		if (m_obj)	m_obj->retain();
+	}
+	
+	//! Replace existing reference
+	void operator=(T *in_obj)
+	{
+		T *r = m_obj;
+		m_obj = in_obj;
+		
+		if (m_obj)	m_obj->retain();
+		if (r)		r->release();
+	}
+	
+	//! Access contained object
+	T *operator()()
+	{
+		return m_obj;
+	}
+	
+	//! Release held reference
+	~RCOne()
+	{
+		if (m_obj)	m_obj->release();
+	}
+};
 
 //! Holds a single instance of an object.
 /*!

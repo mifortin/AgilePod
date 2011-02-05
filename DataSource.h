@@ -17,6 +17,7 @@
 #ifndef DATASOURCE_H
 #define DATASOURCE_H
 #include "Coord2D.h"
+#include "Smart.h"
 
 /*! \file DataSource.h
 	\brief Interfaces for abstract data sources.
@@ -53,7 +54,7 @@
 	also be called upon to regenerate data after it has been released.  This
 	frees the developer from having to manage the resources.
 */
-class IDataSource
+class IDataSource : public RC
 {
 public:
 
@@ -86,6 +87,7 @@ public:
 */
 class IImageDataSource : public IDataSource
 {
+public:
 	//! Size of the image (assumed to be a bitmap)
 	/*!
 		Size of the image.  It can throw an exception if something
@@ -111,6 +113,50 @@ class IImageDataSource : public IDataSource
 	name.  Upon a call to "data", the requested data is loaded and presented.
 	
 	All cached data is destroyed once onLowMemory is called.
+	
+	Depending upon the device, we load up a different file.
+	Files ending with ~iPad load the iPad version, ~iPhone load the
+	iPhone/iPod version.  Adding in @2 specifies that displays, like
+	on the iPhone 4 is present.
+	
+	For example, a file called "Stars" will attempt to load the following
+	on an iPhone 4 (in the given order).
+	-# Stars~iPhone@2.png
+	-# Stars~iPhone.png
+	-# Stars.png
+	
+	If none of these sources leads to an image, then image loading is considered
+	to be a failure.
+	
+	Blending modes can be specified in a file called TextureMap.plist, which
+	could like the example code below:
+	\code
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- Image named Stars -->
+	<key>Stars</key>
+	<dict>
+		<!-- Set the min filter to nearest -->
+		<key>GL_TEXTURE_MIN_FILTER</key>
+		<string>GL_NEAREST</string>
+		
+		<!-- Set the texture wrapping to repeat along the width -->
+		<key>GL_TEXTURE_WRAP_S</key>
+		<string>GL_REPEAT</string>
+	</dict>
+</dict>
+</plist>
+	\endcode
+	
+	For clarity, we opted to use the same names as specified in the OpenGL
+	ES 1.1 Reference Pages.  See the documentation for glTexParameter for
+	further information on what the keys & available values are and their
+	respective effects.
+	
+	\return Reference to the image data source.  Be sure to retain the
+			data source using the RCOne object.
 */
 IImageDataSource *CreateImageDataSourceFromFile(const char *in_szFile);
 
