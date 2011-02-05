@@ -22,6 +22,11 @@
 #ifndef TEXTURE_MANAGER_H
 #define TEXTURE_MANAGER_H
 
+/*!	\file TextureManager.h
+	\brief	Basic texture management
+	
+	Objects connecting visuals to the graphics system.
+*/
 
 //A way to manage the textures on-demand.
 //	We only load up the proper textures based upon screen size information.
@@ -61,6 +66,10 @@ public:
 	/*! \param in_textureName[in]	The file to load */
 	Texture(const char *in_textureName);
 	
+	//! Create a new texture from an arbitrary data source
+	/*! \param in_ds[in] The data source.  It must not be NULL */
+	Texture(IImageDataSource *in_ds);
+	
 	//! Determine the size of the image
 	/*! \return Coord2DI representing size of image */
 	inline Coord2DI			size()
@@ -71,7 +80,8 @@ public:
 	//! Clear the texture.
 	virtual ~Texture()
 	{
-		glDeleteTextures(1, &m_texID);
+		if (m_texID != 0)
+			glDeleteTextures(1, &m_texID);
 	}
 };
 

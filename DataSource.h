@@ -18,6 +18,7 @@
 #define DATASOURCE_H
 #include "Coord2D.h"
 #include "Smart.h"
+#include "Immediate.h"
 
 /*! \file DataSource.h
 	\brief Interfaces for abstract data sources.
@@ -94,6 +95,31 @@ public:
 		bad happened during load or generation.
 	*/
 	virtual Coord2DI size()									= 0;
+	
+	//! Min filter
+	/*!	The filter to apply when making the texture smaller. 
+		By default, this is GL_LINEAR.  This value is set once. */
+	virtual int minFilter()			{	return GL_LINEAR;			}
+	
+	//! Mag filter
+	/*! The filter to apply when enlarging the texture.
+		By default, we set this to GL_LINEAR.  This value is set once. */
+	virtual int magFilter()			{	return GL_LINEAR;			}
+	
+	//! Texture Wrap U
+	/*!	Sets the texture wrap mode.  We like GL_CLAMP_TO_EDGE.
+		This value is set once -- changing the return value has no effect. */
+	virtual int wrapU()				{	return GL_CLAMP_TO_EDGE;	}
+	
+	//! Texture Wrap V
+	/*! Default is GL_CLAMP_TO_EDGE.
+		This value is set once -- changing the return value has no effect. */
+	virtual int wrapV()				{	return GL_CLAMP_TO_EDGE;	}
+	
+	//! Automagically generate mipmaps?
+	/*! Default is GL_FALSE.
+		This value is set once -- changing the return value has no effect. */
+	virtual int generateMipmap()	{	return GL_FALSE;			}
 };
 
 

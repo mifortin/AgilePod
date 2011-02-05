@@ -1,5 +1,5 @@
 /*
-   Copyright 2010 Michael Fortin
+   Copyright 2011 Michael Fortin
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -19,12 +19,18 @@
 #import "Immediate.h"
 #import "SmartMM.h"
 
-static OneNS<NSDictionary*> g_textureMapPlist;
-
 Texture::Texture(const char *in_textureName)
 : m_texID(0)
 {
 	m_data = CreateImageDataSourceFromFile(in_textureName);
+}
+
+
+Texture::Texture(IImageDataSource *in_ds)
+: m_texID(0)
+, m_data(in_ds)
+{
+	assert(in_ds != NULL);
 }
 
 
@@ -35,10 +41,18 @@ void Texture::lazyLoad()
 	int height = s.y;
 	
 	glGenTextures(1, &m_texID);
+	if (m_texID == 0)	throw "Texture::lazyLoad::Failed creating texture!";
 	
-	gl.useTexture(m_texID);
-	gl.uploadImageData(width, height, m_data()->data());
-	
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	//Slightly recursive, but is elegant
+	{
+		BindTexture bt(this);
+		
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, m_data()->minFilter());
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, m_data()->magFilter());
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, m_data()->wrapU());
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, m_data()->wrapV());
+		glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, m_data()->generateMipmap());
+		
+		gl.uploadImageData(width, height, m_data()->data());
+	}
 }

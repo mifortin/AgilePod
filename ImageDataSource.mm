@@ -36,6 +36,7 @@ class ImageFileDataSource : public IImageDataSource
 {
 private:
 	OneNS<NSString*>		m_fileName;
+	OneNS<NSDictionary*>	m_params;
 	Many<GLubyte>			m_fileData;
 	Coord2DI				m_size;
 
@@ -44,6 +45,8 @@ public:
 	: m_size(0,0)
 	{
 		m_fileName = [NSString stringWithUTF8String:in_szFile];
+		
+		loadParams();
 	}
 	
 	void loadData(NSString *in_fileName)
@@ -83,6 +86,71 @@ public:
 		CGContextRelease(imageContext);
 	}
 	
+	void loadParams()
+	{
+		NSBundle *mb = [NSBundle mainBundle];
+		
+		//See if we should load any blending modes
+		if (g_textureMapPlist() == nil)
+		{
+			NSString *path = [mb pathForResource:@"TextureMap" ofType:@"plist"];
+			
+			NSData *rootData = nil;
+			if (path != nil)
+				rootData = [NSData dataWithContentsOfMappedFile:path];
+			
+			if (rootData != nil)
+				g_textureMapPlist
+					= [NSPropertyListSerialization	propertyListFromData:rootData
+													mutabilityOption:0
+													format:NULL
+													errorDescription:nil];
+		}
+		
+		if (g_textureMapPlist() != nil)
+			m_params = [g_textureMapPlist() objectForKey:m_fileName()];
+	}
+	
+	int filterFromName(NSString *name)
+	{
+		if (name == nil)
+			return GL_LINEAR;
+			
+		if ([name compare:@"GL_NEAREST"] == NSOrderedSame)
+			return GL_NEAREST;
+			
+		if ([name compare:@"GL_LINEAR"] == NSOrderedSame)
+			return GL_LINEAR;
+			
+		if ([name compare:@"GL_NEAREST_MIPMAP_NEAREST"] == NSOrderedSame)
+			return GL_NEAREST_MIPMAP_NEAREST;
+			
+		if ([name compare:@"GL_LINEAR_MIPMAP_NEAREST"] == NSOrderedSame)
+			return GL_LINEAR_MIPMAP_NEAREST;
+			
+		if ([name compare:@"GL_NEAREST_MIPMAP_LINEAR"] == NSOrderedSame)
+			return GL_NEAREST_MIPMAP_LINEAR;
+			
+		if ([name compare:@"GL_LINEAR_MIPMAP_LINEAR"] == NSOrderedSame)
+			return GL_LINEAR_MIPMAP_LINEAR;
+		
+		throw "Unknown filter encountered";
+	}
+	
+	int wrapFromName(NSString *name)
+	{
+		if (name == nil)
+			return GL_CLAMP_TO_EDGE;
+			
+		if ([name compare:@"GL_CLAMP_TO_EDGE"] == NSOrderedSame)
+			return GL_CLAMP_TO_EDGE;
+			
+		if ([name compare:@"GL_REPEAT"] == NSOrderedSame)
+			return GL_REPEAT;
+		
+		throw "Unknown wrapping mode encountered";
+	}
+	
 ////////////////////////////////////////////////////////////////////////////////
 //	IDataSource
 
@@ -103,29 +171,6 @@ public:
 			else
 				szIdiom = "iPhone";
 		}
-		
-		NSBundle *mb = [NSBundle mainBundle];
-		
-		//See if we should load any blending modes
-		NSDictionary *blend = nil;
-		if (g_textureMapPlist() == nil)
-		{
-			NSString *path = [mb pathForResource:@"TextureMap" ofType:@"plist"];
-			
-			NSData *rootData = nil;
-			if (path != nil)
-				rootData = [NSData dataWithContentsOfMappedFile:path];
-			
-			if (rootData != nil)
-				g_textureMapPlist
-					= [NSPropertyListSerialization	propertyListFromData:rootData
-													mutabilityOption:0
-													format:NULL
-													errorDescription:nil];
-		}
-		
-		if (g_textureMapPlist() != nil)
-			blend = [g_textureMapPlist() objectForKey:m_fileName()];
 		
 		int scale = (int)(gl.deviceScale() + 0.1f);
 		loadData([NSString stringWithFormat:@"%@~%s@%i",
@@ -154,6 +199,60 @@ public:
 		if (m_size.x == 0)
 			data();			//Load up the image if it has not already been loaded
 		return m_size;		//Return the size.
+	}
+	
+	virtual int minFilter()
+	{
+		if (m_params() == nil)
+			return GL_LINEAR;
+		else
+			return filterFromName([m_params()
+									objectForKey:@"GL_TEXTURE_MIN_FILTER"]);
+	}
+	
+	virtual int magFilter()
+	{
+		if (m_params() == nil)
+			return GL_LINEAR;
+		else
+			return filterFromName([m_params()
+									objectForKey:@"GL_TEXTURE_MAG_FILTER"]);
+	}
+	
+	virtual int wrapU()
+	{
+		if (m_params() == nil)
+			return GL_LINEAR;
+		else
+			return wrapFromName([m_params()
+									objectForKey:@"GL_TEXTURE_WRAP_S"]);
+	}
+	
+	virtual int wrapV()
+	{
+		if (m_params() == nil)
+			return GL_LINEAR;
+		else
+			return wrapFromName([m_params()
+									objectForKey:@"GL_TEXTURE_WRAP_T"]);
+	}
+	
+	virtual int generateMipmap()
+	{
+		if (m_params() == nil)
+			return GL_FALSE;
+		else
+		{
+			NSString *value = [m_params() objectForKey:@"GL_GENERATE_MIMAP"];
+			
+			if ([value compare:@"GL_TRUE"] == NSOrderedSame)
+				return GL_TRUE;
+			
+			if ([value compare:@"GL_FALSE"] == NSOrderedSame)
+				return GL_FALSE;
+			
+			throw "Generate mimaps must either be GL_TRUE or GL_FALSE";
+		}
 	}
 };
 
