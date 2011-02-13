@@ -10,17 +10,9 @@ much larger.
 
 ----------------------------------------------------
 Development:
-The code changes a lot.  If you need a piece of
-code, replicate it following the license.
-
-In other words, it's meant to be used in a project,
-but not remain stable enough to update to the latest
-version without breaking any code.
-
-This was done so that the library can quickly move
-and adjust to various projects.  For those that want
-to follow the library, code changes are normally
-easy to incorporate (just tedious).
+The interfaces are in a constant flux.  It is best
+to build against a specific revision of the library
+until all the kinks get worked out.
 
 ----------------------------------------------------
 Usage:
@@ -30,7 +22,7 @@ files.
 
 ----------------------------------------------------
 More Information:
-See the github project page.  There I'll start
-documenting what each file does.  Or you can
-quickly read through the files; there isn't much.
+Download doxygen and compile the doxyfile to
+generate the documentation on all the objects
+that are part of the public interface.
 
