@@ -39,6 +39,7 @@
 	IImageDataSource specializes IDataSource for image data.
 */
 
+
 //! Abstract representation of a source of data
 /*!
 	\ingroup DataSource
@@ -85,6 +86,8 @@ public:
 	
 	Use \ref CreateImageDataSourceFromFile to create an IImageDataSource from
 	a file within the application bundle.
+	
+	If IDataSource::data() returns NULL, then we assume subregions are uploaded
 */
 class IImageDataSource : public IDataSource
 {

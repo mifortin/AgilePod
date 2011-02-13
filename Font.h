@@ -14,16 +14,11 @@
    limitations under the License.
  */
 
-/*
-	This file manages rendering text.  We take in a system font and
-	draw it to a bitmap.
-*/
+#ifndef FONT_H
+#define FONT_H
 
-class Font
-{
-private:
-	
+#include "DataSource.h"
 
-public:
+int createFontData();
 
-};
+#endif
