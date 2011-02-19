@@ -1,5 +1,5 @@
 /*
-   Copyright 2010 Michael Fortin
+   Copyright 2011 Michael Fortin
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -27,13 +27,19 @@ public:
 };
 
 
-//The touch events we can get (note - we don't differentiate between touches)
+//!The touch events we can get
+/*!	We first send a discovery touch event to determine which element is being
+	touched.  That element subsequently receives multi-touch events.  This may
+	cause nesting issues. */
 class ITouchEvent
 {
 public:
-	//Returns how close we are to handling a press.  Return INFINITY to not
-	//handle the press.  Return 0 to handle the press.
-	virtual float onPress(Coord2D in_pos)									= 0;
+
+	//! Return a pointer to the object that can handle the event.
+	virtual ITouchEvent *canHandleEvent(Coord2D in_pos)						= 0;
+
+	//! Send an event when a finger hits the screen.
+	virtual void onPress(Coord2D in_pos)									= 0;
 	
 	//Position is provided to identify what should be released
 	virtual void onRelease(Coord2D in_pos) 									= 0;

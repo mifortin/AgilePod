@@ -99,7 +99,7 @@ int createFontData()
 	FontDataSource ds(@"abcdefghijklmnopqrstuvwxyz"
 						"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 						"0123456789+-*/="
-						",.;:'\"[]{}\|_&%$#@!");
+						",.;:'\"[]{}\\|_&%$#@!");
 	ds.data();
 	return 0;
 }
