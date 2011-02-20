@@ -24,29 +24,52 @@ class Rect2D
 {
 public:
 	//! First coordinate that makes up the rectangle
-	Coord2D	a;
+	Coord2D	corner;
 	
 	//! Second coordinate
-	Coord2D b;
+	Coord2D size;
+
+	//! Initialize a rect2d
+	/*! \param	in_x[in]		The x-coordinate of the 2D rect
+		\param	in_y[in]		The y-coordinate of the 2D rect
+		\param	in_width[in]	The width of the rectangle
+		\param	in_height[in]	The height of the rectangle
+	*/
+	Rect2D(float in_x, float in_y, float in_width, float in_height)
+	: corner(in_x, in_y)
+	, size(in_width, in_height)
+	{}
+
+	//! Return point in the middle
+	Coord2D center() const
+	{
+		return corner + size/2;
+	}
 
 	//! True if the given point falls within bounds on the x-axis
-	bool containsPointXRange(Coord2D in_c2d)
+	inline bool containsPointXRange(Coord2D in_c2d) const
 	{
-		return (in_c2d.x < a.x && in_c2d.x < b.x)
-			|| (in_c2d.x > a.x && in_c2d.x > b.x);
+		Coord2D a = corner;
+		Coord2D b = corner + size;
+	
+		return (in_c2d.x < a.x && in_c2d.x > b.x)
+			|| (in_c2d.x > a.x && in_c2d.x < b.x);
 	}
 	
 	
 	//! True if the given point falls within bounds on the y-axis
-	bool containsPointXRange(Coord2D in_c2d)
+	inline bool containsPointYRange(Coord2D in_c2d) const
 	{
-		return (in_c2d.y < a.y && in_c2d.y < b.y)
-			|| (in_c2d.y > a.y && in_c2d.y > b.y);
+		Coord2D a = corner;
+		Coord2D b = corner + size;
+		
+		return (in_c2d.y < a.y && in_c2d.y > b.y)
+			|| (in_c2d.y > a.y && in_c2d.y < b.y);
 	}
 	
 	
 	//! True if the given point falls within bounds of the rectangle
-	bool containsPoint(Coord2D in_c2d)
+	inline bool containsPoint(Coord2D in_c2d) const
 	{
 		return containsPointXRange(in_c2d) && containsPointYRange(in_c2d);
 	}

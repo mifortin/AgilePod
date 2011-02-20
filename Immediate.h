@@ -550,6 +550,11 @@ public:
 		gl.vertex(x,y,z);
 	}
 	
+	inline void vertex(Coord2D in_c)
+	{
+		gl.vertex(in_c.x, in_c.y, 0);
+	}
+	
 	inline void vertexi(GLshort x=0, GLshort y=0, GLshort z=0)
 	{
 		gl.vertexi(x,y,z);

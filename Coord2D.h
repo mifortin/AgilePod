@@ -153,6 +153,12 @@ static Coord2D operator*(const float b, const Coord2D &a)
 }
 
 
+static Coord2D operator*(const Coord2D &a, const Coord2D &b)
+{
+	return Coord2D(a.x*b.x, a.y*b.y);
+}
+
+
 static Coord2D operator/(const Coord2D &a, const float b)
 {
 	return Coord2D(a.x/b, a.y/b);

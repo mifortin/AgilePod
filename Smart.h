@@ -106,8 +106,15 @@ public:
 		if (r)		r->release();
 	}
 	
+	//! Shortcut to access class members
+	/*!	So we can do x->a() instead of x()->a() */
+	T *operator->() const
+	{
+		return m_obj;
+	}
+	
 	//! Access contained object
-	T *operator()()
+	T *operator()() const
 	{
 		return m_obj;
 	}

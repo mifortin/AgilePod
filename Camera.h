@@ -28,9 +28,17 @@ static inline float distance(float in_f)
 	return in_f;
 }
 
-static float distance(const float a, const float b)
+
+
+//! Compute the distance between two floating-point values
+/*!
+	\param in_a[in]		A real number
+	\param in_b[in]		A real number
+	\return A value, greater than or equal to zero, the distance between a and b.
+*/
+static float distance(const float in_a, const float in_b)
 {
-	return fabsf(a-b);
+	return fabsf(in_a - in_b);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
