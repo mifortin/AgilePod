@@ -76,7 +76,8 @@ public:
 };
 
 //! Reference-counted smart pointer
-/*! For more complex memory management schemes, we need a way to specify when
+/*! \ingroup SmartPointers
+	For more complex memory management schemes, we need a way to specify when
 	two objects own a single object.
 	
 	The template parameter T must be of type RC*/
