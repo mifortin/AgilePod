@@ -14,8 +14,8 @@
    limitations under the License.
  */
    
-/*
- *	A restricted implementation of GL immediate mode for iTouch.
+/*! \file Immediate.h
+ *	\brief	A restricted implementation of GL immediate mode for iTouch.
  */
 
 #ifndef IMMEDIATE_H
@@ -28,6 +28,7 @@
 #import <OpenGLES/ES1/gl.h>
 #import <OpenGLES/ES1/glext.h>
 #import "Camera.h"
+#import "Coord4D.h"
 
 #define ALIGN(x)	__attribute__((aligned(x/8)))
 
@@ -35,39 +36,35 @@
 //
 //	OpenGL Colour Object
 //
-class gliColour
+
+//!	Internal OpenGL colour object, based on TCoord4D
+class gliColour : protected TCoord4D<GLubyte>
 {
-	GLubyte m_r, m_g, m_b, m_a;
 public:
 	
 	gliColour(float ir, float ig=0, float ib=0, float ia=0)
-	{
-		m_r = 255*ir;
-		m_g = 255*ig;
-		m_b = 255*ib;
-		m_a = 255*ia;
-	}
+	: TCoord4D<GLubyte>::TCoord4D(255*ir, 255*ig, 255*ib, 255*ia)
+	{	}
 	
 	gliColour(GLubyte ir=0, GLubyte ig=0, GLubyte ib=0, GLubyte ia=0)
-	{
-		m_r = ir;
-		m_g = ig;
-		m_b = ib;
-		m_a = ia;
-	}
+	: TCoord4D<GLubyte>::TCoord4D(ir, ig, ib, ia)
+	{	}
 	
 	gliColour(int ir, int ig = 0, int ib = 0, int ia = 0)
-	{
-		m_r = ir;
-		m_g = ig;
-		m_b = ib;
-		m_a = ia;
-	}
+	: TCoord4D<GLubyte>::TCoord4D(ir, ig, ib, ia)
+	{	}
 	
-	GLubyte &r()	{	return m_r;	}
-	GLubyte &g()	{	return m_g;	}
-	GLubyte &b()	{	return m_b;	}
-	GLubyte &a()	{	return m_a;	}
+	//!	Obtain red component
+	GLubyte &r()	{	return x;	}
+	
+	//! Obtain green component
+	GLubyte &g()	{	return y;	}
+	
+	//! Obtain blue component
+	GLubyte &b()	{	return z;	}
+	
+	//! Obtain alpha component
+	GLubyte &a()	{	return w;	}
 } ALIGN(32);
 
 
@@ -540,10 +537,24 @@ public:
 	
 	inline void colour(float r, float g=0, float b=0, float a=0)
 	{	gl.colour(r,g,b,a);		}
+	
+	//! Set the colour using bytes explicitly (range 0...255)
+	/*!	\param	r[in]	Red component, default 0
+		\param 	g[in]	Green component, default 0
+		\param	b[in]	Blue component, default 0
+		\param	a[in]	Alpha component, default 0	*/
 	inline void colouri(GLubyte r=0, GLubyte g=0, GLubyte b=0, GLubyte a=0)
 	{	gl.colouri(r,g,b,a);		}
+	
+	//! Assign a colour using an internal gliColour object
+	/*! \param in_colour[in]		Colour to set the GL state to */
 	inline void colour(const gliColour &in_colour)
 	{	gl.colour(in_colour);				}
+	
+	//! Assign a colour stored in a Coord4D
+	/*! \param in_colour[in]		Colour to set the GL state to */
+	inline void colour(const Coord4D in_colour)
+	{	gl.colour(in_colour.x, in_colour.y, in_colour.z, in_colour.w);	}
 	
 	inline void vertex(float x, float y=0, float z=0)
 	{
