@@ -122,6 +122,20 @@ public:
 };
 
 
+//! Computes atan2 on a Coord2D
+/*!	This function forwards the values in a to atan2 stdlib call.
+	\param a[in]	Coord2D
+	\return			angle, in radians	*/
+static float atan2(const Coord2D a)
+{
+	return atan2f(a.y, a.x);
+}
+
+
+//! Compute the square of the distance between two coordinates
+/*!	\param	a[in]	First coordinate
+	\param	b[in]	Second coordinate
+	\return			Distance squared between a and b.	*/
 static float distanceSquared(const Coord2D &a, const Coord2D &b)
 {
 	float dx = a.x - b.x;

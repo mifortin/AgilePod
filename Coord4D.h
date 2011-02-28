@@ -115,6 +115,19 @@ public:
 		return TCoord4D<T>(	x+in_s.x, y+in_s.y,
 							z+in_s.z, w+in_s.w);
 	}
+	
+	
+	//! Component-wise addition to this TCoord
+	/*!	\param		in_s[in]	TCoord to add
+		\return		Reference to this TCoord4D */
+	TCoord4D<T> operator+=(const TCoord4D<T> in_s)
+	{
+		x += in_s.x;
+		y += in_s.y;
+		z += in_s.z;
+		w += in_s.w;
+		return *this;
+	}
 };
 
 
@@ -167,6 +180,11 @@ public:
 		
 	
 	//! Apply a scale transform to this matrix.
+	/*! \param in_x[in]		X scale (default of 1)
+		\param in_y[in]		Y scale (default of 1)
+		\param in_z[in]		Z scale (default of 1)
+		\param in_w[in]		W scale (default of 1)
+		\return		Reference to this TMatrix4D */
 	TMatrix4D<T> &scale(	const T in_x = 1, const T in_y = 1,
 							const T in_z = 1, const T in_w = 1)
 	{
@@ -176,6 +194,21 @@ public:
 		r4 *= in_w;
 		
 		h *= TCoord4D<T>(in_x, in_y, in_z, in_w);
+		
+		return *this;
+	}
+	
+	
+	//! Apply a translation transformation to this matrix.
+	/*! \param in_x[in]		X offset (default of 0)
+		\param in_y[in]		Y offset (default of 0)
+		\param in_z[in]		Z offset (default of 0)
+		\param in_w[in]		W offset (default of 0)
+		\return		Reference to this TMatrix4D */
+	TMatrix4D<T> &translate(	const T in_x = 0, const T in_y = 0,
+								const T in_z = 0, const T in_w = 0)
+	{
+		h += TCoord4D<T>(in_x, in_y, in_z, in_w);
 		
 		return *this;
 	}
