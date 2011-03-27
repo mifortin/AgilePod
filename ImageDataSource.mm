@@ -17,6 +17,7 @@
 #include "DataSource.h"
 #import "SmartMM.h"
 #import "Immediate.h"
+#import <UIKit/UIKit.h>
 
 
 
@@ -173,7 +174,37 @@ public:
 		}
 		
 		int scale = (int)(gl.deviceScale() + 0.1f);
-		loadData([NSString stringWithFormat:@"%@~%s@%i",
+		
+		//Load from plist file
+		if (m_params() != nil)
+		{
+			NSString *typeScale = [m_params() objectForKey:
+					[NSString stringWithFormat:@"~%s@%i", szIdiom, scale]];
+			
+			if (typeScale == nil)
+			{
+				typeScale = [m_params() objectForKey:
+							 [NSString stringWithFormat:@"~%s", szIdiom]];
+				
+				if (typeScale == nil)
+				{
+					typeScale = [m_params() objectForKey:
+								 [NSString stringWithFormat:@"@%i", scale]];
+				}
+			}
+			
+			if (typeScale != nil)
+			{
+				loadData(typeScale);
+				
+				if (m_fileData() == NULL)
+					NSLog(@"File data not loaded: %@", typeScale);
+			}
+		}
+		
+		//Default file search
+		if (m_fileData() == NULL)
+			loadData([NSString stringWithFormat:@"%@~%s@%i",
 								m_fileName(), szIdiom, scale]);
 		
 		if (m_fileData() == NULL)
@@ -222,7 +253,7 @@ public:
 	virtual int wrapU()
 	{
 		if (m_params() == nil)
-			return GL_LINEAR;
+			return GL_CLAMP_TO_EDGE;
 		else
 			return wrapFromName([m_params()
 									objectForKey:@"GL_TEXTURE_WRAP_S"]);
@@ -231,7 +262,7 @@ public:
 	virtual int wrapV()
 	{
 		if (m_params() == nil)
-			return GL_LINEAR;
+			return GL_CLAMP_TO_EDGE;
 		else
 			return wrapFromName([m_params()
 									objectForKey:@"GL_TEXTURE_WRAP_T"]);

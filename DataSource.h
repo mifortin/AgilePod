@@ -153,6 +153,18 @@ public:
 	-# Stars~iPhone@2.png
 	-# Stars~iPhone.png
 	-# Stars.png
+ 
+	Sometimes, an image may be shared on two platforms.  Two get around this,
+	within the plist, the ~iPad@1 key can be used to specify a special image
+	for an iPad with scale 1.  Default is to pick image name that is more
+	specific to a given device then to use the more general default.
+ 
+	For example, specifying ~iPhone@1 and ~iPhone will specify a default image
+	for low-resolutions iPhones (and iPods) with high resolutions for any iPhone
+	or iPod with a retina or better display.
+ 
+	Specifying ~iPhone@2 and ~iPhone would default higher-than-retina displays
+	to use the low-resolution image specified by ~iPhone.
 	
 	If none of these sources leads to an image, then image loading is considered
 	to be a failure.

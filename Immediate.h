@@ -322,6 +322,11 @@ private:
 	inline void texCoord(float u, float v=0)
 	{	m_texCoord = gliTexCoord(u,v);		}
 	
+	//! Set up the current texture coordinate to use
+	/*!	\param	in_t[in]	Texture coordinate to set */
+	inline void texCoord(const gliTexCoord &in_t)
+	{	m_texCoord = in_t;		}
+	
 	inline void texCoordi(GLshort u, GLshort v=0)
 	{	m_texCoord = gliTexCoord(u,v);		}
 	
@@ -532,9 +537,19 @@ public:
 	inline void texCoord(float u, float v=0)
 	{	gl.texCoord(u,v);		}
 	
+	//! Apply a texture coordinate from texture
+	inline void texCoord(const gliTexCoord &in_t)
+	{	gl.texCoord(in_t);		}
+	
+	//! Texture coordinates from integers
 	inline void texCoordi(GLshort u, GLshort v=0)
 	{	gl.texCoordi(u,v);		}
 	
+	//! Set up the colour using floats.
+	/*!	 \param	r[in]	Red component
+		 \param g[in]	Green component, default 0
+		 \param	b[in]	Blue component, default 0
+		 \param	a[in]	Alpha component, default 0	*/
 	inline void colour(float r, float g=0, float b=0, float a=0)
 	{	gl.colour(r,g,b,a);		}
 	

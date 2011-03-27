@@ -17,13 +17,35 @@
 #ifndef EVENTS_H
 #define EVENTS_H
 
+#include "Coord2D.h"
+#include "Coord3D.h"
 
-//For objects that can be drawn onto the screen...
+//!For objects that can be drawn onto the screen...
 class IDrawable
 {
 public:
+	//! Called to do logic
 	virtual void onLogic()													= 0;
+	
+	//! Called to draw
 	virtual void onRender()													= 0;
+};
+
+
+//! Accelerometer events
+/*!	We do not encourage polling as the system should send fewer accelerometer
+	events than there are frames. */
+class IAccelerometer
+{
+public:
+	//! Called for each event
+	/*!	\param in_angle[in]		Raw accelerometer data */
+	virtual void onAccelerate(Coord3D in_angle)		{}
+	
+	//! Determines desired rate of events
+	/*!	\return		The frequency which accelerometer events should come in.
+					0 to negative values disable the accelerometer.		*/
+	virtual float accelerometerFrequency()			{	return -1;	}
 };
 
 

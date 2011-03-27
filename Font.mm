@@ -17,6 +17,7 @@
 #include "Font.h"
 #include "SmartMM.h"
 #import <CoreFoundation/CoreFoundation.h>
+#import <UIKit/UIKit.h>
 
 class FontDataSource : public IImageDataSource
 {
