@@ -16,8 +16,12 @@
 
 #include "Font.h"
 #include "SmartMM.h"
+
+#ifdef TARGET_OS_IPHONE
 #import <CoreFoundation/CoreFoundation.h>
 #import <UIKit/UIKit.h>
+#else
+#endif
 
 class FontDataSource : public IImageDataSource
 {

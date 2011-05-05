@@ -17,7 +17,10 @@
 #include "DataSource.h"
 #import "SmartMM.h"
 #import "Immediate.h"
+#ifdef TARGET_OS_IPHONE
 #import <UIKit/UIKit.h>
+#else
+#endif
 
 
 

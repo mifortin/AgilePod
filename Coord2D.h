@@ -52,16 +52,17 @@ class Coord2D;
 static Coord2D operator/(const Coord2D &a, const float b);
 
 //! Floating-point 2D Coordinate
-class Coord2D : public CGPoint
+class Coord2D
 {
 public:
+	float x,y;
 	
 	Coord2D(float ix=0, float iy=0)
-	: CGPoint(CGPointMake(ix, iy))
+	: x(ix), y(iy)
 	{}
 	
 	Coord2D(CGPoint in_pt)
-	: CGPoint(in_pt)
+	: x(in_pt.x), y(in_pt.y)
 	{}
 	
 	Coord2D &operator+=(const Coord2D &other)
@@ -118,6 +119,11 @@ public:
 		x /= in_b;
 		y /= in_b;
 		return *this;
+	}
+	
+	operator CGPoint()
+	{
+		return CGPointMake(x, y);
 	}
 };
 
