@@ -201,10 +201,22 @@ static float magnitude(const Coord2D &a)
 	return sqrtf(a.x*a.x + a.y*a.y);
 }
 
-
+//! Dot product of two Coord2D objects
+/*!	\param a[in]	First Coord2D object
+	\param b[in]	Second Coord2D object
+	\return			dot product of both	*/
 static float dot(const Coord2D &a, const Coord2D &b)
 {
 	return a.x*b.x + a.y*b.y;
+}
+
+
+//! Takes the floor of the respective components of a Coord2D
+/*!	\param	a[in]	Arbitrary Coord2D
+	\return			The floor of a.	*/
+static Coord2D floor(const Coord2D &a)
+{
+	return Coord2D(floorf(a.x), floorf(a.y));
 }
 
 

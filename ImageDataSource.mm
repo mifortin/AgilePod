@@ -83,6 +83,8 @@ public:
 									CGImageGetColorSpace(texImage),
 									kCGImageAlphaPremultipliedLast);
 		
+		CGContextSetBlendMode(imageContext, kCGBlendModeCopy);
+		
 		CGContextDrawImage(imageContext,
 							CGRectMake(0,0,width,height),
 							texImage);

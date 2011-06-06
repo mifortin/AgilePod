@@ -95,18 +95,15 @@ public:
 //
 //	OpenGL Texture Coordinate
 //
-class gliTexCoord
+class gliTexCoord : protected Coord2DI
 {	
-	GLshort m_u, m_v;
 public:
 	gliTexCoord(float iu, float iv=0)
-	: m_u(iu*1023)
-	, m_v(iv*1023)
+	: Coord2DI(iu*1023,iv*1023)
 	{}
 	
 	gliTexCoord(GLshort iu=0, GLshort iv=0)
-	: m_u(iu)
-	, m_v(iv)
+	: Coord2DI(iu, iv)
 	{}
 } ALIGN(32);
 
@@ -362,9 +359,9 @@ public:
 	, m_height(0)
 	, m_scale(1)
 	, m_srcBlend(GL_ONE)
-	, m_dstBlend(GL_ONE)
+	, m_dstBlend(GL_ZERO)
 	, m_boundSrcBlend(GL_ONE)
-	, m_boundDstBlend(GL_ONE)
+	, m_boundDstBlend(GL_ZERO)
 	{
 		memset(m_enable, 0, sizeof(m_enable));
 		memset(m_pvtEnable, 0, sizeof(m_pvtEnable));
@@ -546,6 +543,11 @@ public:
 	inline void texCoordi(GLshort u, GLshort v=0)
 	{	gl.texCoordi(u,v);		}
 	
+	//! Texture coordinate from Coord2D
+	/*!	\param in_t[in]		Texture coordinates within Coord2D	*/
+	inline void texCoord(const Coord2D &in_t)
+	{	gl.texCoord(in_t.x, in_t.y);	}
+	
 	//! Set up the colour using floats.
 	/*!	 \param	r[in]	Red component
 		 \param g[in]	Green component, default 0
@@ -572,6 +574,10 @@ public:
 	inline void colour(const Coord4D in_colour)
 	{	gl.colour(in_colour.x, in_colour.y, in_colour.z, in_colour.w);	}
 	
+	//! Set up a vertex
+	/*!	\param x[in]	X coordinate
+		\param y[in]	Y coordinate (default 0)
+		\param z[in]	Z coordinate (default 0)	*/
 	inline void vertex(float x, float y=0, float z=0)
 	{
 		gl.vertex(x,y,z);
