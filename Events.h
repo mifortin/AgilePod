@@ -152,7 +152,10 @@ public:
 //! TouchEvent distributor
 /*!	Sometimes, certain views will scale or distort the touch events.  It is
 	not the responsibility of the children to worry about this scaling/skewing
-	of the event space. */
+	of the event space.
+ 
+	Note - this distributor may be problematic in multi-touch situations
+ */
 class TouchEventDistributor
 {
 private:

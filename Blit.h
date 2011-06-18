@@ -257,12 +257,4 @@ static float frand()
 }
 
 
-static double x_time()
-{
-	struct timeval t;
-	gettimeofday(&t, NULL);
-	
-	return (double)t.tv_sec + ((double)t.tv_usec) / 1000000.0;
-}
-
 #endif
