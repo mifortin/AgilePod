@@ -19,6 +19,7 @@
 
 #include <CoreGraphics/CoreGraphics.h>
 #include "Restorer.h"
+#include "Angle.h"
 
 
 //! Integer 2D Coordinate
@@ -94,6 +95,17 @@ public:
 		return Coord2D(-x, -y);
 	}
 	
+	inline bool operator==(const Coord2D &other)
+	{
+		return x == other.x && y == other.y;
+	}
+	
+	
+	inline bool operator!=(const Coord2D &other)
+	{
+		return x != other.x || y != other.y;
+	}
+	
 	inline Coord2D clamp(float min, float max) const
 	{
 		Coord2D r = *this;
@@ -132,9 +144,9 @@ public:
 /*!	This function forwards the values in a to atan2 stdlib call.
 	\param a[in]	Coord2D
 	\return			angle, in radians	*/
-static float atan2(const Coord2D a)
+static Angle atan2(const Coord2D a)
 {
-	return atan2f(a.y, a.x);
+	return Angle(atan2f(a.y, a.x));
 }
 
 

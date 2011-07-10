@@ -99,7 +99,7 @@ class gliTexCoord : protected Coord2DI
 {	
 public:
 	gliTexCoord(float iu, float iv=0)
-	: Coord2DI(iu*1023,iv*1023)
+	: Coord2DI(iu,iv)
 	{}
 	
 	gliTexCoord(GLshort iu=0, GLshort iv=0)
@@ -591,6 +591,20 @@ public:
 	inline void vertexi(GLshort x=0, GLshort y=0, GLshort z=0)
 	{
 		gl.vertexi(x,y,z);
+	}
+};
+
+
+//!Wraps the transforms (automatically push / pop matrices)
+class gliTransform
+{
+public:
+	gliTransform()		{	gl.pushMatrix();	}
+	~gliTransform()		{	gl.popMatrix();		}
+	
+	void translate(const Coord2D &in_c)
+	{
+		gl.translate(in_c.x, in_c.y);
 	}
 };
 

@@ -18,6 +18,7 @@
 #define MATRIX2D
 
 #include "Coord2D.h"
+#include "Angle.h"
 
 //! Basic 2D matrix
 class Matrix2D
@@ -30,9 +31,9 @@ public:
 	Coord2D row2;
 	
 	//! Initialize as rotation matrix
-	Matrix2D(float in_angle)
-	: row1(cosf(in_angle), -sinf(in_angle))
-	, row2(sinf(in_angle), cosf(in_angle))
+	Matrix2D(const Angle &in_angle)
+	: row1(cosf(in_angle.radians()), -sinf(in_angle.radians()))
+	, row2(sinf(in_angle.radians()), cosf(in_angle.radians()))
 	{}
 };
 
