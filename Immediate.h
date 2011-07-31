@@ -520,7 +520,7 @@ public:
 class Draw
 {
 public:
-	//Make sure that each begin has an associated end
+	//!Make sure that each begin has an associated end
 	Draw(short in_mode)
 	{
 		gl.begin(in_mode);
@@ -531,7 +531,7 @@ public:
 		gl.end();
 	}
 	
-	//Forward all the vertex and texture stuff...
+	//!Forward all the vertex and texture stuff...
 	inline void texCoord(float u, float v=0)
 	{	gl.texCoord(u,v);		}
 	
