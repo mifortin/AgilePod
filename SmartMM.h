@@ -33,6 +33,9 @@
 	
 	The slight overhead is nothing compared to the time saved by reducing
 	the chances of making mistakes with retaining and releasing.
+ 
+	There is a wrapper called OneNSArray specifically for NSArray objects.
+	It provides C++ style array offsets and type information.
 */
 
 //! Smart pointer for Objective-C objects
@@ -63,7 +66,7 @@ class OneNS
 private:
 	//! Private reference to Objective-C object
 	T	m_one;
-
+	
 public:
 	//! Copy constructor
 	/*! \param cpy[in]		OneNS object to copy */
@@ -115,11 +118,130 @@ public:
 	/*! Use this to access the value of the underlying objective-C reference. */
 	inline T operator()() const		{	return m_one;	}
 	
+	//! Nicver way to get the underlying value
+	inline T v() const				{	return m_one;	}
+	
 	//! Destructor releases held instance.
 	virtual ~OneNS()
 	{
 		if (m_one)		[m_one release];
 	}
+};
+
+
+//! Smart pointer for core foundation objects
+template<class T>
+class OneCF
+{
+private:
+	//! Private refrence to the data.
+	T	m_one;
+	
+public:
+	//! Copy constructor
+	/*! \param cpy[in]		OneNS object to copy */
+	OneCF(const OneCF &cpy)
+	{
+		m_one = cpy.m_one;
+		if (m_one)		CFRetain(m_one);
+	}
+	
+	//! Create a new smart pointer
+	/*! \param in_one[in]	Default value of nil, a reference of the object to retain */
+	OneCF(T in_one = nil)
+	{
+		m_one = in_one;
+		if (m_one)		CFRetain(m_one);
+	}
+	
+	//! Assign a different pointer
+	/*! \param in_init[in]	New reference to retain or nil
+	 \return	The previous reference and releasing it once. */
+	inline T operator=(T in_init)
+	{
+		if (in_init)	CFRetain(in_init);
+		if (m_one)		CFRelease(m_one);
+		
+		m_one = in_init;
+		
+		return m_one;
+	}
+	
+	//! Compare two references.
+	/*! \param in_cmp[in]	Reference to compare
+	 \return true if the addresses of the internal reference and in_cmp
+	 are the same. */
+	inline bool operator==(T in_cmp)
+	{
+		return in_cmp == m_one;
+	}
+	
+	//! Not equal
+	/*! \param in_cmp[in]	Reference to compare with
+	 \return	true if the address is different */
+	inline bool operator!=(T in_cmp)
+	{
+		return in_cmp != m_one;
+	}
+	
+	//! Overloaded function operator
+	/*! Use this to access the value of the underlying objective-C reference. */
+	inline T operator()() const		{	return m_one;	}
+	
+	//! Nicver way to get the underlying value
+	inline T v() const				{	return m_one;	}
+	
+	//! Destructor releases held instance.
+	virtual ~OneCF()
+	{
+		if (m_one)		CFRelease(m_one);
+	}
+};
+
+
+//! Abstract list object
+/*!	\tparam The type of list.  Single-type lists makes code easier later */
+template<class T>
+class IList : public RC
+{
+public:
+	//! Get access to an element
+	virtual T operator[](int in_index)				= 0;
+	
+	//! Check the count
+	virtual int count()								= 0;
+	
+	//! Virtual destructor
+	virtual ~IList()	{}
+};
+
+/*!
+ A wrapper around an NSArray.  This provides a way to see the type as we're
+ coding.
+ 
+ \tparam	T	The type contained within the NSArray
+ */
+template<class T>
+class OneNSArray : public OneNS<NSArray*>, public IList<T>
+{
+public:
+	//! Provide a convenient C++ operator to get to the elements, properly typed
+	inline T operator[](int in_index)
+	{ return (T)[v() objectAtIndex:in_index];	}
+	
+	//! An easy way to get the count
+	inline int count()
+	{ return [v() count];	}
+	
+	//! Tell GCC about operator overloading...
+	inline NSArray* operator=(NSArray *in_init)
+	{	return OneNS<NSArray*>::operator=(in_init);	}
+	
+	//! Forward constructor
+	OneNSArray(NSArray* in_data) : OneNS<NSArray*>(in_data)		{}
+	
+	//! Forward copy-constructor
+	OneNSArray(const OneNSArray &cpy) : OneNS<NSArray*>(cpy)	{}
 };
 
 #endif
