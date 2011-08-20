@@ -226,7 +226,11 @@ public:
 	{
 		m_fileData = NULL;	//Trash the image data
 	}
-
+	
+	virtual void releaseData()
+	{
+		onLowMemory();
+	}
 
 ////////////////////////////////////////////////////////////////////////////////
 //	IImageDataSource

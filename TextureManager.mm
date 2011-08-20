@@ -48,6 +48,7 @@ void Texture::lazyLoad()
 		BindTexture bt(this);
 		
 		gl.uploadImageData(width, height, m_data()->data());
+		m_data()->releaseData();
 		
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, m_data()->minFilter());
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, m_data()->magFilter());

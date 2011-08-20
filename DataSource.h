@@ -67,6 +67,12 @@ public:
 	*/
 	virtual void* data()									= 0;
 	
+	//! Release the data
+	/*!	In some cases, we copy the data elsewhere.  We should release the data
+		in those cases.  calling data() again will force reloading the data
+		from the source into main memory. */
+	virtual void releaseData()								= 0;
+	
 	//! Called whenever memory is low...
 	/*!
 		On mobile devices, memory is at a premium.  Ideally, we can flush out

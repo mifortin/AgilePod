@@ -96,6 +96,11 @@ public:
 	{
 		m_data = NULL;
 	}
+	
+	virtual void releaseData()
+	{
+		onLowMemory();
+	}
 };
 
 
