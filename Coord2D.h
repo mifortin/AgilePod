@@ -22,93 +22,106 @@
 #include "Angle.h"
 
 
-//! Integer 2D Coordinate
-class Coord2DI
-{
-public:
-	//! X component
-	short x;
+/*!	\file	Coord2D.h
+	\brief	Objects to help simplify the use of 2D coordinates
 	
-	//! Y component
-	short y;
-	
-	//! Initializes a 2D coordinate object
-	/*! Initializes an instance of Coord2DI
-		\param[in]		in_x		X coordinate.  Default is 0.
-		\param[in]		in_y		Y coordinate.  Default is 0.
-		
-		\post{ A valid Coord2DI object following garbage-in garbage-out
-				principles! }
-	*/
-	Coord2DI(short in_x=0, short in_y=0)
-	: x(in_x)
-	, y(in_y)
-	{ }
-};
+	Often-times, it is clearer when writing code in compact vector notation;
+	which is the point of these objects.
+ 
+	Coord2D operates on floating-point values.
+	Coord2DI operates in integers.
+*/
+
 
 
 ////////////////////////////////////////////////////////////////////////////////
-class Coord2D;
-
-static Coord2D operator/(const Coord2D &a, const float b);
-
-//! Floating-point 2D Coordinate
-class Coord2D
+//! 2D Coordinate
+template<class T>
+class TCoord2D
 {
 public:
-	float x,y;
+	T x,y;
 	
-	Coord2D(float ix=0, float iy=0)
+	TCoord2D(T ix=0, T iy=0)
 	: x(ix), y(iy)
 	{}
 	
-	Coord2D(CGPoint in_pt)
+	TCoord2D(CGPoint in_pt)
 	: x(in_pt.x), y(in_pt.y)
 	{}
 	
-	Coord2D &operator+=(const Coord2D &other)
+	TCoord2D &operator+=(const TCoord2D &other)
 	{
 		x+=other.x;
 		y+=other.y;
 		return *this;
 	}
 	
-	Coord2D &operator-=(const Coord2D &a)
+	TCoord2D &operator-=(const TCoord2D &a)
 	{
 		x -= a.x;
 		y -= a.y;
 		return *this;
 	}
 	
+	TCoord2D operator-(const TCoord2D &b) const
+	{
+		return TCoord2D(x - b.x, y - b.y);
+	}
+	
+	TCoord2D operator+(const TCoord2D &b) const
+	{
+		return TCoord2D(x + b.x, y + b.y);
+	}
+	
+	TCoord2D operator*(const float b) const
+	{
+		return TCoord2D(x*b, y*b);
+	}
+	
+	
+	
+	TCoord2D operator*(const TCoord2D &b) const
+	{
+		return TCoord2D(x*b.x, y*b.y);
+	}
+	
+	
+	TCoord2D operator/(const float b) const
+	{
+		return TCoord2D(x/b, y/b);
+	}
+
+	
 	inline float magnitude() const
 	{
 		return sqrtf(x*x + y*y);
 	}
 	
-	inline Coord2D normal() const
+	inline TCoord2D normal() const
 	{
 		return *this/magnitude();
 	}
 	
-	inline Coord2D operator-() const
+	inline TCoord2D operator-() const
 	{
-		return Coord2D(-x, -y);
+		return TCoord2D(-x, -y);
 	}
 	
-	inline bool operator==(const Coord2D &other)
+	inline bool operator==(const TCoord2D &other)
 	{
 		return x == other.x && y == other.y;
 	}
 	
 	
-	inline bool operator!=(const Coord2D &other)
+	inline bool operator!=(const TCoord2D &other)
 	{
 		return x != other.x || y != other.y;
 	}
 	
-	inline Coord2D clamp(float min, float max) const
+	inline TCoord2D clamp(float min, float max) const
 	{
-		Coord2D r = *this;
+		TCoord2D r = *this;
 		
 		if (r.x < min)	r.x = min;
 		if (r.y < min)	r.y = min;
@@ -119,14 +132,14 @@ public:
 		return r;
 	}
 	
-	Coord2D &operator*=(float b)
+	TCoord2D &operator*=(float b)
 	{
 		x *= b;
 		y *= b;
 		return *this;
 	}
 	
-	Coord2D &operator/=(float in_b)
+	TCoord2D &operator/=(float in_b)
 	{
 		x /= in_b;
 		y /= in_b;
@@ -139,6 +152,28 @@ public:
 	}
 };
 
+//! Specialize 2D coordinates for floats
+typedef TCoord2D<float> Coord2D;
+
+//! Specialize 2D coordinates for ints
+typedef TCoord2D<short> Coord2DI;
+
+static Coord2D operator/(const float b, const Coord2D &a)
+{
+	return Coord2D(b/a.x, b/a.y);
+}
+
+static Coord2D operator*(const float b, const Coord2D &a)
+{
+	return Coord2D(a.x*b, a.y*b);
+}
+
+
+static float distance(const Coord2D &a, const Coord2D &b)
+{
+	const Coord2D d = a-b;
+	return sqrtf(d.x*d.x + d.y*d.y);
+}
 
 //! Computes atan2 on a Coord2D
 /*!	This function forwards the values in a to atan2 stdlib call.
@@ -163,48 +198,41 @@ static float distanceSquared(const Coord2D &a, const Coord2D &b)
 }
 
 
-static Coord2D operator-(const Coord2D &a, const Coord2D &b)
+//! Check to see if all components of a are greater than all of b.
+/*!	\param	a[in]	Coordinate
+	\param	b[in]	Second coordinate
+	\return			True if a.x >= b.x and a.y >= b.y
+ 
+	This is useful when checking bounds, for example:
+\code
+if (a >= Coord2D(10,10) && a <= Coord2D(100,100))
 {
-	return Coord2D(a.x - b.x, a.y - b.y);
+	//a is within the box formed by 10,10 and 100,100
 }
-
-static Coord2D operator+(const Coord2D &a, const Coord2D &b)
+\endcode
+*/
+static bool operator>=(const Coord2D &a, const Coord2D &b)
 {
-	return Coord2D(a.x + b.x, a.y + b.y);
-}
-
-static Coord2D operator*(const Coord2D &a, const float b)
-{
-	return Coord2D(a.x*b, a.y*b);
-}
-
-
-static Coord2D operator*(const float b, const Coord2D &a)
-{
-	return Coord2D(a.x*b, a.y*b);
+	return a.x >= b.x && a.y >= b.y;
 }
 
 
-static Coord2D operator*(const Coord2D &a, const Coord2D &b)
+//! Check to see if all components of a are less than than all of b.
+/*!	\param	a[in]	Coordinate
+	\param	b[in]	Second coordinate
+	\return			True if a.x <= b.x and a.y <= b.y
+ 
+	This is useful when checking bounds, for example:
+\code
+if (a >= Coord2D(10,10) && a <= Coord2D(100,100))
 {
-	return Coord2D(a.x*b.x, a.y*b.y);
+	//a is within the box formed by 10,10 and 100,100
 }
-
-
-static Coord2D operator/(const Coord2D &a, const float b)
+\endcode
+ */
+static bool operator<=(const Coord2D &a, const Coord2D &b)
 {
-	return Coord2D(a.x/b, a.y/b);
-}
-
-static Coord2D operator/(const float b, const Coord2D &a)
-{
-	return Coord2D(b/a.x, b/a.y);
-}
-
-static float distance(const Coord2D &a, const Coord2D &b)
-{
-	const Coord2D d = a-b;
-	return sqrtf(d.x*d.x + d.y*d.y);
+	return a.x <= b.x && a.y <= b.y;
 }
 
 
