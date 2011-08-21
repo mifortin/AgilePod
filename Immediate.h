@@ -141,8 +141,9 @@ typedef gliDisable<GL_COLOR_ARRAY,			2>	gliDisableColorArray;
 typedef gliDisable<GL_TEXTURE_COORD_ARRAY,	3>	gliDisableTexCoordArray;
 
 
-//Each of these objects are specific to the GLI object.  That is they
-//define the internal structure!
+//! Object managing simplified OpenGLES1 state
+/*! \ingroup OpenGLES1
+	Most methods are private and accessed via friend classes */
 class gli
 {
 private:
@@ -435,13 +436,12 @@ static void gliModelSetup()
 }
 
 
-////////////////////////////////////////////////////////////////////////////////
-//
-//	OpenGL Blending Mode
-//		Usage: 	instantiate the object.  It will enable the given
-//				blending modes and disable them once it gets popped off
-//				the stack.
-//
+//!	OpenGL Blending Mode
+/*!	\ingroup OpenGLES1
+		Usage: 	instantiate the object.  It will enable the given
+				blending modes and disable them once it gets popped off
+				the stack.
+*/
 class gliBlendFunc
 {
 	GLenum m_oldSrc;
@@ -467,41 +467,46 @@ public:
 };
 
 
-////////////////////////////////////////////////////////////////////////////////
-//
-//	OpenGL Enable Disable
-//		Usage:	enables and disables GL states.
-//				use the provided typedefs...
-//		Impl:	we use a template system - an index into an array in
-//				the global GL object, and the GL enable/disable key.
-//
+//!	OpenGL Enable Disable
+/*!\ingroup OpenGLES1
+		Usage:	enables and disables GL states.
+				use the provided typedefs...
+		Impl:	we use a template system - an index into an array in
+				the global GL object, and the GL enable/disable key.
+*/
+
 template<int GL_MODE, int INDEX>
 class gliEnable
 {
 	char m_prevState;
 public:
+	//! Enable the given state (pass false to disable)
 	gliEnable(bool in_enable = true)
 	{
 		m_prevState = gl.m_enable[INDEX];
 		gl.m_enable[INDEX] = in_enable ? 1 : 0;
 	}
 	
+	//! Toggle enable/disable
 	inline void enable(bool in_enable = true)
 	{
 		gl.m_enable[INDEX] = in_enable ? 1 : 0;
 	}
 	
+	//! Disable (explicit)
 	inline void disable()
 	{
 		enable(false);
 	}
 	
+	//! Upon destruction, return previous state.
 	inline ~gliEnable()
 	{
 		gl.m_enable[INDEX] = m_prevState;
 	}
 };
 
+//! Equivalent to gliEnable except disables by default
 template<int GL_MODE, int INDEX>
 class gliDisable : public gliEnable<GL_MODE, INDEX>
 {
@@ -512,11 +517,22 @@ public:
 };
 
 
-////////////////////////////////////////////////////////////////////////////////
-//
-//	OpenGL Drawing Routines
-//		Usage:	Instantiate within the context which drawing is desired...
-//
+//!	OpenGL Drawing Routines
+/*!
+ \ingroup OpenGLES1
+ Usage:	Instantiate within the context which drawing is desired...
+ 
+ For example, to draw a triangle (no need for lists):
+\code
+{
+	Draw d(GL_TRIANGLES)	//Rendering starts when d goes out of scope.
+	
+	d.texCoord(...);		//A la OpenGL immediate mode!
+	d.vertex(...);
+}
+\endcode
+*/
+
 class Draw
 {
 public:
@@ -596,6 +612,7 @@ public:
 
 
 //!Wraps the transforms (automatically push / pop matrices)
+/*! \ingroup OpenGLES1 */
 class gliTransform
 {
 public:
