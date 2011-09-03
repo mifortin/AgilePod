@@ -35,13 +35,13 @@ public:
 	: row1(cosf(in_angle.radians()), -sinf(in_angle.radians()))
 	, row2(sinf(in_angle.radians()), cosf(in_angle.radians()))
 	{}
+	
+	//! Basic multiplication
+	Coord2D operator*(const Coord2D &in_c2d) const
+	{
+		return Coord2D(dot(row1, in_c2d), dot(row2, in_c2d));
+	}
 };
 
-
-//! Basic multiplication
-Coord2D operator*(const Matrix2D &in_mat, const Coord2D &in_c2d)
-{
-	return Coord2D(dot(in_mat.row1, in_c2d), dot(in_mat.row2, in_c2d));
-}
 
 #endif
