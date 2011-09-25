@@ -155,18 +155,6 @@ private:
 	
 	gliColour 			m_colour;
 	
-	
-	//Texture info...
-	GLuint m_textureID;
-	GLuint m_boundTexture;
-	
-	//Current blend mode
-	GLenum m_srcBlend;
-	GLenum m_dstBlend;
-	
-	GLenum m_boundSrcBlend;
-	GLenum m_boundDstBlend;
-	
 	//Device info...
 	int		m_width;
 	int		m_height;
@@ -179,20 +167,7 @@ private:
 
 
 ////////////////////////////////////////////////////////////////////////////////
-	//Push a new blending mode
-	inline void blendFunc(GLenum in_srcBlend, GLenum in_dstBlend)
-	{
-		m_srcBlend = in_srcBlend;
-		m_dstBlend = in_dstBlend;
-	}
-	
-	inline GLenum srcBlend() const		{	return m_srcBlend;				}
-	inline GLenum dstBlend() const		{	return m_dstBlend;				}
-
-
-////////////////////////////////////////////////////////////////////////////////
 	//Enable/disable...
-	friend class gliBlendFunc;
 	friend class gliEnable<GL_TEXTURE_2D, 	 0	>;
 	friend class gliEnable<GL_BLEND,		 1	>;
 	friend class gliEnable<GL_COLOR_ARRAY,	 2	>;
@@ -205,29 +180,8 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 	//Texturing...
 	friend class FrameBuffer;
-	friend class Texture;
 	friend class BindTexture;
 	
-	//Call this if binding only needs to occur on the next draw call.
-	//	(hint - usually call this function)
-	inline GLuint useTexture(GLuint in_textureID)
-	{
-		int r = m_textureID;
-		m_textureID = in_textureID;
-		return r;
-	}
-	
-	//Upload RGBA image data for a texture.
-	inline void uploadImageData(int width, int height, void *imageData = NULL, int mipmap=0)
-	{
-		if (m_boundTexture !=  m_textureID)
-		{
-			m_boundTexture = m_textureID;
-			glBindTexture(GL_TEXTURE_2D, m_textureID);
-		}
-		
-		glTexImage2D(GL_TEXTURE_2D, mipmap, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
-	}
 	
 	
 ////////////////////////////////////////////////////////////////////////////////
@@ -253,15 +207,6 @@ private:
 				glDisable(GL_TEXTURE_2D);
 		}
 		
-		if (m_enable[0])
-		{
-			if (m_boundTexture !=  m_textureID)
-			{
-				m_boundTexture = m_textureID;
-				glBindTexture(GL_TEXTURE_2D, m_textureID);
-			}
-		}
-		
 		//Check for blending...
 		if (m_enable[1] != m_pvtEnable[1])
 		{
@@ -270,16 +215,6 @@ private:
 				glEnable(GL_BLEND);
 			else
 				glDisable(GL_BLEND);
-		}
-		
-		if (m_enable[1])
-		{
-			if (m_boundSrcBlend != m_srcBlend || m_boundDstBlend != m_dstBlend)
-			{
-				m_boundSrcBlend = m_srcBlend;
-				m_boundDstBlend = m_dstBlend;
-				glBlendFunc(m_srcBlend, m_dstBlend);
-			}
 		}
 	
 		//Set up colour arrays...
@@ -354,15 +289,9 @@ private:
 	
 public:
 	gli()
-	: m_textureID(0)
-	, m_boundTexture(0)
-	, m_width(0)
+	: m_width(0)
 	, m_height(0)
 	, m_scale(1)
-	, m_srcBlend(GL_ONE)
-	, m_dstBlend(GL_ZERO)
-	, m_boundSrcBlend(GL_ONE)
-	, m_boundDstBlend(GL_ZERO)
 	{
 		memset(m_enable, 0, sizeof(m_enable));
 		memset(m_pvtEnable, 0, sizeof(m_pvtEnable));
@@ -437,32 +366,32 @@ static void gliModelSetup()
 
 
 //!	OpenGL Blending Mode
-/*!	\ingroup OpenGLES1
+/*!	
 		Usage: 	instantiate the object.  It will enable the given
 				blending modes and disable them once it gets popped off
 				the stack.
+ 
+		This object works with both OpenGL ES 1 and 2.
+ 
+		The intended use is on the stack.  So as it gets pushed/popped on
+		the stack the GL state is updated accordingly.
 */
 class gliBlendFunc
 {
-	GLenum m_oldSrc;
-	GLenum m_oldDst;
+	GLenum m_oldSrc;		//!< Previous src blend func
+	GLenum m_oldDst;		//!< Previous dest blend func
 
 public:
-	gliBlendFunc(GLenum in_src=GL_ONE, GLenum in_dst=GL_ZERO)
-	: m_oldSrc(gl.srcBlend())
-	, m_oldDst(gl.dstBlend())
-	{
-		gl.blendFunc(in_src, in_dst);
-	}
+	//! Create a new blendFunc object that will restore previous values on free.
+	gliBlendFunc(GLenum in_src=GL_ONE, GLenum in_dst=GL_ZERO);
 	
-	inline void blendFunc(GLenum in_src=GL_ONE, GLenum in_dst=GL_ZERO)
-	{
-		gl.blendFunc(in_src, in_dst);
-	}
+	//! Change the blend function
+	void blendFunc(GLenum in_src=GL_ONE, GLenum in_dst=GL_ZERO);
 	
+	//! Restore the previous blend function
 	inline ~gliBlendFunc()
 	{
-		gl.blendFunc(m_oldSrc, m_oldDst);
+		blendFunc(m_oldSrc, m_oldDst);
 	}
 };
 

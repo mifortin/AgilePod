@@ -73,11 +73,8 @@ private:
 	friend class RenderToTarget;
 	friend class BindTexture;
 	
-	inline GLuint use()
-	{
-		if (m_texID == 0)	lazyInit();
-		return gl.useTexture(m_texID);
-	}
+	//! Use this FrameBuffer (implementation in TextureManager.mm)
+	GLuint use();
 
 public:
 	//!Creates a new FrameBuffer
@@ -112,8 +109,10 @@ public:
 	
 	//! Get the height of the FrameBuffer
 	int height()		{		return m_height;	}
+	
+	//! Use the OpenGL ES 2.x functions
+	static void useOpenGLES2();
 };
-
 
 //! Sets a FrameBuffer object as the target for OpenGL rendering calls.
 /*! \ingroup OpenGLES1

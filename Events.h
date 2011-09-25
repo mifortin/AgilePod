@@ -74,11 +74,35 @@ public:
 	//! Send an event when a finger hits the screen.
 	virtual void onPress(Coord2D in_pos)									= 0;
 	
-	//Position is provided to identify what should be released
+	//!Position is provided to identify what should be released
 	virtual void onRelease(Coord2D in_pos) 									= 0;
 	
-	//Moves point from source to destination
+	//!Moves point from source to destination
 	virtual void onSwipe(Coord2D in_src, Coord2D in_dest) 					= 0;
+};
+
+
+
+//((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((
+//||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+//))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+
+
+//! A object that can handle touch, restore to a given point, be drawn to, and more
+/*!	The purpose of IScreen is to specify what a screen should do.  A screen
+	should handle touch events.  It should restore itself upon quit and restart.
+	It should provide a visual front-end.  And it should accelerate.
+ 
+	Screens need not just be something that takes up the entire visual space
+	but they can also be something like a button, a list, etc.
+ 
+	The screenSizeChange event provides a means to specify a new size to a screen.
+ */
+class IScreen : public ITouchEvent, public Restorable, public IDrawable, public IAccelerometer
+{
+public:
+	//!Handle system events
+	virtual void handleScreenSizeChange(Coord2D in_size)	= 0;
 };
 
 

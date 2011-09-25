@@ -54,12 +54,7 @@ private:
 	
 	//!Lazily bind the texture.
 	/*!That is; it is only bound upon rendering - and only if the texture ID changed. */
-	inline GLuint use()
-	{
-		if (m_texID == 0)	lazyLoad();
-		
-		return gl.useTexture(m_texID);
-	}
+	GLuint use();
 	
 public:
 	//! Create a new texture from a file
@@ -112,10 +107,8 @@ public:
 	{
 		f->use();
 	}
-
-	~BindTexture()
-	{
-		gl.useTexture(m_prev);
-	}
+	
+	//! Restore the texture
+	~BindTexture();
 };
 #endif

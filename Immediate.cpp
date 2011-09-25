@@ -18,3 +18,22 @@
 
 gli gl;
 gliColour gliColourWhite(255,255,255,255);
+
+
+
+//! Previously applied blending modes
+static GLenum g_blendSrc = GL_ONE, g_blendDst = GL_ZERO;
+
+gliBlendFunc::gliBlendFunc(GLenum in_src, GLenum in_dst)
+: m_oldSrc(g_blendSrc)
+, m_oldDst(g_blendDst)
+{
+	blendFunc(in_src, in_dst);
+}
+
+void gliBlendFunc::blendFunc(GLenum in_src, GLenum in_dst)
+{
+	g_blendDst = in_dst;
+	g_blendSrc = in_src;
+	glBlendFunc(in_src, in_dst);
+}

@@ -28,7 +28,9 @@
 	code.  This object provides a means to globally (and locally if needed)
 	manage timers.	*/
 
-//! Returns the current time in milliseconds
+//! Returns the current time in seconds
+/*!	Uses coarse system time to return the current time.
+	\return The current time in seconds (accurate to about a millisecond?) */
 static double x_time()
 {
 	struct timeval t;
@@ -73,9 +75,51 @@ public:
 	//! Get the change in time in seconds
 	float dt()	{	return m_dt;	}
 	
+	//! Get the absolute time
+	/*!	The advantage of this function over x_time is that it will return
+		a constant value until tick() is called again.  It is faster than
+		always calling upon x_time()	*/
+	float t()	{	return m_previousTime;	}
+	
 	//! When the elapsed time will exceed reason (app went in background)
 	/*!	Call this upon return from a long pause. */
 	void unrelatedPause()	{	m_previousTime = x_time();	}
+};
+
+
+//! Determine when something occurs (0 = not yet, 1 = complete)
+/*!	For those animations that need a bit of tuning... */
+class Chrono
+{
+private:
+	//! When the animation starts
+	float m_startTime;
+	
+	//! When the animation ends
+	float m_endTime;
+	
+public:
+	//! Construct a new chrono
+	Chrono();
+	
+	//! Start the chrono (to end 'n' seconds in the future)
+	/*!	Previous timers are reset
+		\param in_seconds	Number of seconds to elapse from 0 to complete */
+	void stopIn(float in_seconds);
+	
+	//! Start the chrono from a given time in the future to a given time.
+	/*!	Previous chrono values are reset
+		\param in_start		Number of seconds in future to start
+		\param in_end		Number of seconds in future to end		*/
+	void startUntil(float in_start, float in_end);
+	
+	//! Starts a chrono after another chrono.
+	/*!	\param	in_other	Another chrono whose end-time serves as start time
+		\param	in_duration	The duration (in seconds) of this event	*/
+	void startAfter(const Chrono &in_other, float in_duration);
+	
+	//! Return the progress (0=start, not started, 1 = done!)
+	float progress() const;
 };
 
 

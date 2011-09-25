@@ -17,6 +17,10 @@
 #include "FrameBuffer.h"
 
 #include "Immediate.h"
+#include "TextureManager.h"
+
+
+#include <OpenGLES/ES2/gl.h>
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -25,31 +29,65 @@
 //
 static FrameBuffer *g_curFB = NULL;
 
+
+// The following are prototypes of functions and GL constants that change
+//	between OpenGL ES 1x and OpenGL ES 2x.
+static void (*apGenFramebuffers)(GLsizei n, GLuint * framebuffers)	= glGenFramebuffersOES;
+static void (*apBindFramebuffer)(GLenum target, GLuint framebuffer)	= glBindFramebufferOES;
+static void (*apFramebufferTexture2D)(	GLenum target,
+										GLenum attachment,
+										GLenum textarget,
+										GLuint texture,
+										GLint level)				= glFramebufferTexture2DOES;
+static GLenum (*apCheckFramebufferStatus)(GLenum target)			= glCheckFramebufferStatusOES;
+static void (*apFramebufferRenderbuffer)(	GLenum target,
+											GLenum attachment,
+											GLenum renderbuffertarget,
+											GLuint renderbuffer)	= glFramebufferRenderbufferOES;
+static void (*apGetRenderbufferParameteriv)(GLenum target,
+											GLenum pname,
+											GLint * params)			= glGetRenderbufferParameterivOES;
+static void (*apDeleteFramebuffers)(GLsizei n,
+									const GLuint * framebuffers)	= glDeleteFramebuffersOES;
+
+
+
+// Just in case the symbols are different...
+//	The constants are the same
+void FrameBuffer::useOpenGLES2()
+{
+	apGenFramebuffers = glGenFramebuffers;
+	apBindFramebuffer = glBindFramebuffer;
+	apFramebufferTexture2D = glFramebufferTexture2D;
+	apCheckFramebufferStatus = glCheckFramebufferStatus;
+	apFramebufferRenderbuffer = glFramebufferRenderbuffer;
+	apGetRenderbufferParameteriv = glGetRenderbufferParameteriv;
+	apDeleteFramebuffers = glDeleteFramebuffers;
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 
 void FrameBuffer::lazyInit()
 {
 	glGenTextures(1, &m_texID);
-	glGenFramebuffersOES(1, &m_fbID);
-	
-	GLuint prev = gl.useTexture(m_texID);
-	gl.uploadImageData(m_width, m_height);
-	
+	BindTexture bt(this);
+	apGenFramebuffers(1, &m_fbID);
+		
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	
-	glBindFramebufferOES(GL_FRAMEBUFFER_OES, m_fbID);
+	apBindFramebuffer(GL_FRAMEBUFFER_OES, m_fbID);
 	
-	glFramebufferTexture2DOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_TEXTURE_2D, m_texID, 0);
+	apFramebufferTexture2D(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_TEXTURE_2D, m_texID, 0);
 	
-	if (glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES) != GL_FRAMEBUFFER_COMPLETE_OES)
+	if (apCheckFramebufferStatus(GL_FRAMEBUFFER_OES) != GL_FRAMEBUFFER_COMPLETE_OES)
 	{
-		printf("failed to make complete framebuffer object %x\n", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES));
+		printf("failed to make complete framebuffer object %x\n", apCheckFramebufferStatus(GL_FRAMEBUFFER_OES));
 		throw "Failed creating frame buffer object";
 	}
 	
-	gl.useTexture(prev);
 }
 
 
@@ -66,16 +104,16 @@ FrameBuffer::FrameBuffer(GLuint in_renderBuffer)
 	assert(g_curFB == NULL);
 	g_curFB = this;
 
-	glGenFramebuffersOES(1, &m_fbID);
-	glBindFramebufferOES(GL_FRAMEBUFFER_OES, m_fbID);
-	glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_RENDERBUFFER_OES, in_renderBuffer);
+	apGenFramebuffers(1, &m_fbID);
+	apBindFramebuffer(GL_FRAMEBUFFER_OES, m_fbID);
+	apFramebufferRenderbuffer(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_RENDERBUFFER_OES, in_renderBuffer);
 	
-	glGetRenderbufferParameterivOES(GL_RENDERBUFFER_OES, GL_RENDERBUFFER_WIDTH_OES, &m_width);
-	glGetRenderbufferParameterivOES(GL_RENDERBUFFER_OES, GL_RENDERBUFFER_HEIGHT_OES, &m_height);
+	apGetRenderbufferParameteriv(GL_RENDERBUFFER_OES, GL_RENDERBUFFER_WIDTH_OES, &m_width);
+	apGetRenderbufferParameteriv(GL_RENDERBUFFER_OES, GL_RENDERBUFFER_HEIGHT_OES, &m_height);
 	
-	if (glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES) != GL_FRAMEBUFFER_COMPLETE_OES)
+	if (apCheckFramebufferStatus(GL_FRAMEBUFFER_OES) != GL_FRAMEBUFFER_COMPLETE_OES)
 	{
-		printf("failed to make complete framebuffer object %x\n", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES));
+		printf("failed to make complete framebuffer object %x\n", apCheckFramebufferStatus(GL_FRAMEBUFFER_OES));
 		throw "Failed creating frame buffer object";
 	}
 	
@@ -111,7 +149,7 @@ FrameBuffer::~FrameBuffer()
 		glDeleteTextures(1, &m_texID);
 	
 	if (m_fbID != 0)
-		glDeleteFramebuffersOES(1, &m_fbID);
+		apDeleteFramebuffers(1, &m_fbID);
 }
 
 
@@ -126,7 +164,7 @@ RenderToTarget::RenderToTarget(FrameBuffer *in_fb)
 	if (in_fb->m_fbID == 0)
 		in_fb->lazyInit();
 	else
-		glBindFramebufferOES(GL_FRAMEBUFFER_OES, in_fb->m_fbID);
+		apBindFramebuffer(GL_FRAMEBUFFER_OES, in_fb->m_fbID);
 	
 	glViewport(0,0,in_fb->m_width, in_fb->m_height);
 }
@@ -136,6 +174,6 @@ RenderToTarget::~RenderToTarget()
 {
 	g_curFB = m_prev;
 	
-	glBindFramebufferOES(GL_FRAMEBUFFER_OES, m_prev->m_fbID);
+	apBindFramebuffer(GL_FRAMEBUFFER_OES, m_prev->m_fbID);
 	glViewport(0, 0, m_prev->m_width, m_prev->m_height);
 }

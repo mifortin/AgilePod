@@ -19,6 +19,10 @@
 #import "Immediate.h"
 #import "SmartMM.h"
 
+
+//Texture info...
+static GLuint g_boundTexture	= 0;
+
 Texture::Texture(const char *in_textureName)
 : m_texID(0)
 {
@@ -31,6 +35,38 @@ Texture::Texture(IImageDataSource *in_ds)
 , m_data(in_ds)
 {
 	assert(in_ds != NULL);
+}
+
+
+GLuint Texture::use()
+{
+	if (m_texID == 0)	lazyLoad();
+	
+	GLuint r = g_boundTexture;
+	
+	if (g_boundTexture != m_texID)
+	{
+		glBindTexture(GL_TEXTURE_2D, m_texID);
+		g_boundTexture = m_texID;
+	}
+	
+	return r;
+}
+
+
+GLuint FrameBuffer::use()
+{
+	if (m_texID == 0)	lazyInit();
+	
+	GLuint r = g_boundTexture;
+	
+	if (g_boundTexture != m_texID)
+	{
+		glBindTexture(GL_TEXTURE_2D, m_texID);
+		g_boundTexture = m_texID;
+	}
+	
+	return r;
 }
 
 
@@ -47,7 +83,7 @@ void Texture::lazyLoad()
 	{
 		BindTexture bt(this);
 		
-		gl.uploadImageData(width, height, m_data()->data());
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_data()->data());
 		m_data()->releaseData();
 		
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, m_data()->minFilter());
@@ -55,5 +91,16 @@ void Texture::lazyLoad()
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, m_data()->wrapU());
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, m_data()->wrapV());
 		glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, m_data()->generateMipmap());
+	}
+}
+
+
+
+BindTexture::~BindTexture()
+{
+	if (g_boundTexture != m_prev)
+	{
+		glBindTexture(GL_TEXTURE_2D, m_prev);
+		g_boundTexture = m_prev;
 	}
 }
