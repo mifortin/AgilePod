@@ -43,6 +43,9 @@ private:
 	//!The OpenGL texture ID that we use	( 0 = not a texture)
 	GLuint 				m_texID;
 	
+	//!The size (as a power of 2)
+	Coord2DI			m_npt2;
+	
 	//!The backing object
 	RCOne<IImageDataSource>	m_data;
 	
@@ -71,6 +74,11 @@ public:
 	{
 		return m_data()->size();
 	}
+	
+	//! Call to check for new data
+	/*!	This is not done automatically since it is preferred to start loading
+		near the end of a frame. */
+	void checkForMoreData();
 	
 	//! Clear the texture.
 	virtual ~Texture()

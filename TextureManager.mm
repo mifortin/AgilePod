@@ -73,6 +73,33 @@ GLuint FrameBuffer::use()
 void Texture::lazyLoad()
 {
 	Coord2DI s = m_data()->size();
+	
+	Coord2DI npt2 = s;
+	
+	//Quick hack to get next power of 2 on a 32-bit machine
+	//	(see http://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2 )
+	//	(and http://acius2.blogspot.com/2007/11/calculating-next-power-of-2.html )
+	//
+	//		Essentially sets all bits less than the current bit to 1 and adds 1.
+	npt2.x--;
+	npt2.x = (npt2.x >> 1) | npt2.x;
+	npt2.x = (npt2.x >> 2) | npt2.x;
+	npt2.x = (npt2.x >> 4) | npt2.x;
+	npt2.x = (npt2.x >> 8) | npt2.x;
+	npt2.x = (npt2.x >> 16) | npt2.x;
+	npt2.x++;
+	
+	npt2.y--;
+	npt2.y = (npt2.y >> 1) | npt2.y;
+	npt2.y = (npt2.y >> 2) | npt2.y;
+	npt2.y = (npt2.y >> 4) | npt2.y;
+	npt2.y = (npt2.y >> 8) | npt2.y;
+	npt2.y = (npt2.y >> 16) | npt2.y;
+	npt2.y++;
+	//End quick hack
+	
+	m_npt2 = npt2;
+	
 	int width = s.x;
 	int height = s.y;
 	
@@ -83,7 +110,8 @@ void Texture::lazyLoad()
 	{
 		BindTexture bt(this);
 		
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_data()->data());
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, npt2.x, npt2.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, m_data()->data());
 		m_data()->releaseData();
 		
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, m_data()->minFilter());
@@ -91,6 +119,21 @@ void Texture::lazyLoad()
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, m_data()->wrapU());
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, m_data()->wrapV());
 		glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, m_data()->generateMipmap());
+	}
+}
+
+
+void Texture::checkForMoreData()
+{
+	if (m_texID == 0)	return;
+	
+	Coord2DI s = size();
+	
+	if (m_data()->hasUpdatedData())
+	{
+		BindTexture bt(this);
+		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, s.x, s.y, GL_RGBA, GL_UNSIGNED_BYTE, m_data()->data());
+		m_data()->releaseData();
 	}
 }
 

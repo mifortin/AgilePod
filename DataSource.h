@@ -19,6 +19,7 @@
 #include "Coord2D.h"
 #include "Smart.h"
 #include "Immediate.h"
+#include <CoreVideo/CoreVideo.h>
 
 /*! \file DataSource.h
 	\brief Interfaces for abstract data sources.
@@ -104,6 +105,9 @@ public:
 		bad happened during load or generation.
 	*/
 	virtual Coord2DI size()									= 0;
+	
+	//! Set to true if the data should be re-uploaded (refresh)
+	virtual bool hasUpdatedData()	{	return false;				}
 	
 	//! Min filter
 	/*!	The filter to apply when making the texture smaller. 
@@ -206,5 +210,16 @@ public:
 			data source using the RCOne object.
 */
 IImageDataSource *CreateImageDataSourceFromFile(const char *in_szFile);
+
+
+//! Specialization of IImageDataSource for CVImageBuffer objects
+class ICVImageBufferDataSource : public IImageDataSource
+{
+public:
+	virtual void addCVImageBuffer(CVImageBufferRef in_ref)		= 0;
+};
+
+//! Create a new data-source that will take in CVImageBuffer objects
+ICVImageBufferDataSource *CreateCVImageBufferDataSource();
 
 #endif
