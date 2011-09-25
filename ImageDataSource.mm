@@ -178,7 +178,7 @@ public:
 				szIdiom = "iPhone";
 		}
 		
-		int scale = (int)(gl.deviceScale() + 0.1f);
+		int scale = 1; //(int)(gl.deviceScale() + 0.1f);
 		
 		//Load from plist file
 		if (m_params() != nil)
