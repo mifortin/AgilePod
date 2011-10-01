@@ -18,6 +18,7 @@
 
 #include "Immediate.h"
 #include "TextureManager.h"
+#include "GPUExtensions.h"
 
 
 #include <OpenGLES/ES2/gl.h>
@@ -39,10 +40,39 @@ void FrameBuffer::lazyInit()
 	glGenFramebuffers(1, &m_fbID);
 	
 	BindTexture bt(this);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-		
+	
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	
+	if (GPU::Support::NPOT())
+	{
+		m_pot = m_size;
+	}
+	else
+	{
+		m_pot = m_size;
+		
+		m_pot.x--;
+		m_pot.x = (m_pot.x >> 1) | m_pot.x;
+		m_pot.x = (m_pot.x >> 2) | m_pot.x;
+		m_pot.x = (m_pot.x >> 4) | m_pot.x;
+		m_pot.x = (m_pot.x >> 8) | m_pot.x;
+		m_pot.x = (m_pot.x >> 16) | m_pot.x;
+		m_pot.x++;
+		
+		m_pot.y--;
+		m_pot.y = (m_pot.y >> 1) | m_pot.y;
+		m_pot.y = (m_pot.y >> 2) | m_pot.y;
+		m_pot.y = (m_pot.y >> 4) | m_pot.y;
+		m_pot.y = (m_pot.y >> 8) | m_pot.y;
+		m_pot.y = (m_pot.y >> 16) | m_pot.y;
+		m_pot.y++;
+	}
+	
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_pot.x, m_pot.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 	
 	glBindFramebuffer(GL_FRAMEBUFFER, m_fbID);
 	
@@ -57,9 +87,8 @@ void FrameBuffer::lazyInit()
 }
 
 
-FrameBuffer::FrameBuffer(int in_width, int in_height)
-: m_width(in_width)
-, m_height(in_height)
+FrameBuffer::FrameBuffer(Coord2DI in_size)
+: m_size(in_size)
 , m_texID(0)
 , m_fbID(0)
 {}
@@ -74,8 +103,14 @@ FrameBuffer::FrameBuffer(GLuint in_renderBuffer)
 	glBindFramebuffer(GL_FRAMEBUFFER, m_fbID);
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER_OES, in_renderBuffer);
 	
-	glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &m_width);
-	glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &m_height);
+	int width, height;
+	glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &width);
+	glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &height);
+	
+	m_size.x = width;
+	m_size.y = height;
+	
+	m_pot = m_size;
 	
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 	{
@@ -83,7 +118,7 @@ FrameBuffer::FrameBuffer(GLuint in_renderBuffer)
 		throw "Failed creating frame buffer object";
 	}
 	
-	glViewport(0, 0, m_width, m_height);
+	glViewport(0, 0, m_size.x, m_size.y);
 	
 	//gl.specifyDeviceSize(m_width, m_height);
 }
@@ -96,13 +131,13 @@ void FrameBuffer::downloadFrameBuffer(int8_t *out_dest)
 	if (this != g_curFB)
 	{
 		RenderToTarget t(this);
-		glReadPixels(	0,0, m_width, m_height, GL_RGBA,
+		glReadPixels(	0,0, m_size.x, m_size.y, GL_RGBA,
 						GL_UNSIGNED_BYTE,
 						out_dest);
 	}
 	else
 	{
-		glReadPixels(	0,0, m_width, m_height, GL_RGBA,
+		glReadPixels(	0,0, m_size.x, m_size.y, GL_RGBA,
 						GL_UNSIGNED_BYTE,
 						out_dest);
 	}
@@ -137,7 +172,7 @@ RenderToTarget::RenderToTarget(FrameBuffer *in_fb)
 	else
 		glBindFramebuffer(GL_FRAMEBUFFER, in_fb->m_fbID);
 	
-	glViewport(0,0,in_fb->m_width, in_fb->m_height);
+	glViewport(0,0,in_fb->m_size.x, in_fb->m_size.y);
 }
 
 
@@ -146,5 +181,5 @@ RenderToTarget::~RenderToTarget()
 	g_curFB = m_prev;
 	
 	glBindFramebuffer(GL_FRAMEBUFFER, m_prev->m_fbID);
-	glViewport(0, 0, m_prev->m_width, m_prev->m_height);
+	glViewport(0, 0, m_prev->m_size.x, m_prev->m_size.y);
 }

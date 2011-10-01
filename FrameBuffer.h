@@ -21,24 +21,22 @@
 #include <OpenGLES/ES1/glext.h>
 
 #include "Immediate.h"
+#include "Coord2D.h"
 
 /*!	\file	FrameBuffer.h
-	\brief	Methods to simplify render-to-texture operations in GL-ES-1x
+	\brief	Methods to simplify render-to-texture operations
 
 	Render-to-texture is often used to do special effects.  It is bound as a
 	texture using the BindTexture object.  The RenderToTarget object will
 	change the rendering path from what it was to this FrameBuffer.
 */
-
-/*! \defgroup OpenGLES1	OpenGL ES 1.x: Objects that wrap and extend OpenGL ES 1.x
- */
 	
 
 class BindTexture;
 class RenderToTarget;
 
 //! Provides the ability to render to texture
-/*!	\ingroup OpenGLES1
+/*!
 	Provides a means to render to a texture.
  
 	\code
@@ -63,8 +61,11 @@ private:
 	GLuint			m_texID;
 	GLuint			m_fbID;
 	
-	//The size of the texture	(to create on first render)
-	int				m_width, m_height;
+	//!The size of the texture	(to create on first render)
+	Coord2DI		m_size;
+	
+	//!The size as a power of two (or npot if supported)
+	Coord2DI		m_pot;
 	
 	//Lazy initializer
 	void 			lazyInit();
@@ -78,9 +79,8 @@ private:
 
 public:
 	//!Creates a new FrameBuffer
-	/*!		\param	width[in]	width of the buffer
-			\param	height[in]	height of the buffer	*/
-	FrameBuffer(int in_width, int in_height);
+	/*!		\param	size[in]	Size of the FrameBuffer. */
+	FrameBuffer(Coord2DI in_size);
 	
 	//!Creates a FrameBuffer attached to a RenderBuffer.
 	/*!	In this case, initialization is not delayed, and this is bound as the
@@ -99,29 +99,26 @@ public:
 	void downloadFrameBuffer(int8_t *out_dest);
 	
 	//!The size of the buffer (minimum required for download)
-	int bufferSizeInBytes()	{		return m_width*m_height*4;	}
+	int bufferSizeInBytes()	{		return m_size.x*m_size.y*4;	}
 	
 	//!Frees the FrameBuffer object
 	~FrameBuffer();
 	
-	//! Get the width of the FrameBuffer
-	int width()			{		return m_width;		}
-	
-	//! Get the height of the FrameBuffer
-	int height()		{		return m_height;	}
+	//! Size of the FrameBuffer
+	const Coord2DI size()	const	{	return  m_size;		}
 	
 	//! Use the OpenGL ES 2.x functions
 	static void useOpenGLES2();
 };
 
 //! Sets a FrameBuffer object as the target for OpenGL rendering calls.
-/*! \ingroup OpenGLES1
-	RenderToTarget sets up a frame buffer to be drawn to.  Once it goes out
+/*! RenderToTarget sets up a frame buffer to be drawn to.  Once it goes out
 	of scope, it will revert the frane buffer to draw to the previous target.
 */
 class RenderToTarget
 {
 private:
+	//! Stack of frame-buffer objects.
 	FrameBuffer *m_prev;			//What we wish to restore...
 
 public:
