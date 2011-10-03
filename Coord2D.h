@@ -36,20 +36,26 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 //! 2D Coordinate
+/*!	\tparam	T	The basic type that the coordinates are made of.  Use Coord2D
+				for floats.  Coord2DI for 16-bit integers.	*/
 template<class T>
 class TCoord2D
 {
 public:
+	//! The x and y coordinates
 	T x,y;
 	
+	//! Initialize with two explicit values
 	TCoord2D(T ix=0, T iy=0)
 	: x(ix), y(iy)
 	{}
 	
+	//! Conversion from a CGPoint
 	TCoord2D(CGPoint in_pt)
 	: x(in_pt.x), y(in_pt.y)
 	{}
 	
+	//! Increment the components
 	TCoord2D &operator+=(const TCoord2D &other)
 	{
 		x+=other.x;
@@ -57,6 +63,7 @@ public:
 		return *this;
 	}
 	
+	//! Decrement the components
 	TCoord2D &operator-=(const TCoord2D &a)
 	{
 		x -= a.x;
@@ -64,45 +71,49 @@ public:
 		return *this;
 	}
 	
+	//! Subtract two vectors
 	TCoord2D operator-(const TCoord2D &b) const
 	{
 		return TCoord2D(x - b.x, y - b.y);
 	}
 	
+	//! Sum two vectors
 	TCoord2D operator+(const TCoord2D &b) const
 	{
 		return TCoord2D(x + b.x, y + b.y);
 	}
 	
+	//! Product with a scalar
 	TCoord2D operator*(const float b) const
 	{
 		return TCoord2D(x*b, y*b);
 	}
 	
-	
-	
+	//! Component-wise product
 	TCoord2D operator*(const TCoord2D &b) const
 	{
 		return TCoord2D(x*b.x, y*b.y);
 	}
 	
-	
+	//! Divide by scalar
 	TCoord2D operator/(const float b) const
 	{
 		return TCoord2D(x/b, y/b);
 	}
 
-	
+	//! Compute the magnitude (distance to origin)
 	inline float magnitude() const
 	{
 		return sqrtf(x*x + y*y);
 	}
 	
+	//! Normalize
 	inline TCoord2D normal() const
 	{
 		return *this/magnitude();
 	}
 	
+	//! Negate
 	inline TCoord2D operator-() const
 	{
 		return TCoord2D(-x, -y);
@@ -158,17 +169,21 @@ typedef TCoord2D<float> Coord2D;
 //! Specialize 2D coordinates for ints
 typedef TCoord2D<short> Coord2DI;
 
-static Coord2D operator/(const float b, const Coord2D &a)
+//! Divides scalar by Coord2D
+template<class T>
+static TCoord2D<T> operator/(const T b, const TCoord2D<T> &a)
 {
-	return Coord2D(b/a.x, b/a.y);
+	return TCoord2D<T>(b/a.x, b/a.y);
 }
 
-static Coord2D operator*(const float b, const Coord2D &a)
+//! Multiplies Coord2D by scalar.
+template<class T>
+static TCoord2D<T> operator*(const float b, const TCoord2D<T> &a)
 {
-	return Coord2D(a.x*b, a.y*b);
+	return TCoord2D<T>(a.x*b, a.y*b);
 }
 
-
+//! Compute the distance between two points
 static float distance(const Coord2D &a, const Coord2D &b)
 {
 	const Coord2D d = a-b;

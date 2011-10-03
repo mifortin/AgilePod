@@ -251,6 +251,9 @@ public:
 		return m_many;
 	}
 	
+	//! Operator to access an element	(should be inlined...)
+	inline T& operator[](int in_idx) const	{	return m_many[in_idx];	}
+	
 	//! Operator used to access the pointer
 	inline T* operator()()	const	{	return m_many;	}
 	
