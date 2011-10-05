@@ -49,6 +49,9 @@ private:
 	//!The size (as a power of 2)
 	Coord2DI			m_npt2;
 	
+	//! The size
+	Coord2DI			m_size;
+	
 	//!The backing object
 	RCOne<IImageDataSource>	m_data;
 	
@@ -75,7 +78,15 @@ public:
 	/*! \return Coord2DI representing size of image */
 	inline Coord2DI			size()
 	{
-		return m_data()->size();
+		return m_size;
+	}
+	
+	//! What is the size of the image
+	/*!	May be smaller than size on systems that don't support NPOT */
+	inline Coord2D			sizeInTexture()
+	{
+		return Coord2D(	(float)m_size.x / (float)m_npt2.x,
+						(float)m_size.y / (float)m_npt2.y);
 	}
 	
 	//! Load the image (prevent lazy loading)

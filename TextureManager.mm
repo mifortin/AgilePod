@@ -26,6 +26,7 @@ static GLuint g_boundTexture	= 0;
 
 Texture::Texture(const char *in_textureName)
 : m_texID(0)
+, m_texSecond(0)
 {
 	m_data = CreateImageDataSourceFromFile(in_textureName);
 }
@@ -34,6 +35,7 @@ Texture::Texture(const char *in_textureName)
 Texture::Texture(IImageDataSource *in_ds)
 : m_texID(0)
 , m_data(in_ds)
+, m_texSecond(0)
 {
 	assert(in_ds != NULL);
 }
@@ -75,6 +77,7 @@ void Texture::lazyLoad()
 {
 	Coord2DI s = m_data()->size();
 	
+	m_size = s;
 	Coord2DI npt2 = s;
 	
 	if (GPU::Support::NPOT() &&
