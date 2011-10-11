@@ -14,7 +14,7 @@
  limitations under the License.
  */
 
-#include "GPUOperation.h"
+#include "GPUBuffer.h"
 
 namespace GPU
 {
@@ -78,4 +78,25 @@ namespace GPU
 		in_other->bind();
 		g_vbo = in_other;
 	}
-}
+	
+	namespace Type
+	{
+		namespace Description
+		{
+			const TypeDescription V3::desc[]
+			=	{	TypeDescription(Float32, Vertices, 3)	};
+			
+			const int V3::length()
+			{	return sizeof(desc) / sizeof(TypeDescription);	}
+			
+			
+			
+			const TypeDescription V3_C4::desc[]
+			=	{	TypeDescription(Float32,	Vertices,	3),
+					TypeDescription(Int8,		Colours,	4)		};
+			
+			const int V3_C4::length()
+			{	return sizeof(desc) / sizeof(TypeDescription);	}
+		}
+	};
+};

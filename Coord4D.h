@@ -218,6 +218,9 @@ public:
 //! Coord4D as floating-point
 typedef TCoord4D<float>	Coord4D;
 
+//! Coord4D as unsigned char
+typedef TCoord4D<unsigned char> ByteCoord4D;
+
 //! Matrix4D as floating-point
 typedef TMatrix4D<float> Matrix4D;
 

@@ -17,7 +17,10 @@
 #ifndef BubblePod_GPUOperation_h
 #define BubblePod_GPUOperation_h
 
-/*!	\file	GPUOperation.h
+#include "Coord3D.h"
+#include "Coord4D.h"
+
+/*!	\file	GPUBuffer.h
 	\brief	Provides an additional layer of abstraction for OpenGL ES 2x.
  
 	OpenGL ES 2x replaced the fixed-function pipeline of OpenGL ES 1x with
@@ -133,29 +136,151 @@ namespace GPU
 	};
 	
 	
-	//! Specialize a VBO for a specific type.
-	/*!	VBOs typically are not random.  Rather, they represent an array of
-		something.  In this case T.
-	 
-		T should be an object.  T must have the following methods:
-		-	size	- The number of types within the VBO
-		-	[]		- Overloaded operator returning a descriptor of the types:
-					-	Is it float?  short?  4-vector?  3-vector?
-					-	The shader will specify links from this to underlying
-						arrays.  ES 1x shaders actually map to the fixed-point
-						hardware with appropriate changes of client state.
-					-	Matching from the shader to the object is done through
-						hints.
-	 
-		The reasoning is that data should be divorced from the shader (share
-		the same shader across the same data-set).  Shaders will only be able
-		to bind to VBOs with compatible signatures...
-	 
-		\tparam	T	The type within the VBO		*/
-	template<class T>
-	class TVBO : public VBO
+	namespace Type
 	{
-	};
+		//! Enumerate the different types that exist on the GPU
+		/*!	The values equate to OpenGL values for simplicity	*/
+		enum Type
+		{
+			Float32		= GL_FLOAT,			//!< Standard 32-bit float
+			Int8		= GL_UNSIGNED_BYTE,	//!< Unsigned char
+			Int16		= GL_SHORT,			//!< Short
+			Int32		= GL_INT			//!< 32-bit int.
+		};
+		
+		//! Purpose for the different types (vertices, colours, etc.)
+		enum Purpose
+		{
+			Vertices,						//!< A list of vertices
+			Colours,						//!< A list of colours
+			Indices,						//!< A list of indices
+			TextureCoordinates				//!< A list of tex coordinates
+		};
+	
+	
+		//!	Describes a type within an FBO (such as a set of floats, etc.)
+		/*!	Later, all the types are assumed to be packed.  So a float
+			will take 4 bytes, and if a short comes after it will be
+			offset by 4 bytes after the float.	*/
+		class TypeDescription
+		{
+		private:
+			//! Data type for the data (upload)
+			const Type m_type;
+			
+			//! The purpose of the type.
+			/*! If more than one of the same type, then the first occurence is 0 */
+			const Purpose m_purpose;
+			
+			//! The size of the vector.
+			/*!	Differentiate between vertices on the line, plane, space, and 4d */
+			const int m_size;
+			
+		public:
+			//! Create a new TypeDescription
+			TypeDescription(Type in_type, Purpose in_purpose, int in_s)
+			: m_type(in_type)
+			, m_purpose(in_purpose)
+			, m_size(in_s)
+			{
+				if (in_s <= 0 || in_s > 4)	throw "TypeDescription::Invalid size";
+			}
+			
+			//! Get the type
+			const Type type() const			{	return m_type;				}
+			
+			//! Get the purpose
+			const Purpose purpose() const	{	return m_purpose;			}
+			
+			//! Get the size
+			const int size() const			{	return m_size;				}
+		};
+		
+		
+		namespace Description
+		{
+			//! Describes a single vertex
+			class V3 : public Coord3D
+			{
+				static const TypeDescription desc[];
+			
+			public:
+				static const int length();
+				static const TypeDescription* description()	{ return desc;	}
+			};
+			
+			//! Describes a vertex + colour
+			class V3_C4
+			{
+				static const TypeDescription desc[];
+				
+			public:
+				Coord3D		position;
+				ByteCoord4D	colour;		//!< x=r, y=g, z=b, w=a
+				
+				static const int length();
+				static const TypeDescription* description() { return desc;	}
+			};
+		};
+		
+		
+		//! Specialize a VBO for a specific type.
+		/*!	VBOs typically are not random.  Rather, they represent an array of
+		 something.  In this case T.
+		 
+		 T should be an object.  T must have the following methods:
+		 -	description:	returns a vector of TypeDescription objects
+		 
+		 The reasoning is that data should be divorced from the shader (share
+		 the same shader across the same data-set).  Shaders will only be able
+		 to bind to VBOs with compatible signatures...
+		 
+		 \tparam	T	The type within the VBO		*/
+		template<class T>
+		class TVBO : public VBO
+		{
+		private:
+			//! The data uploaded to the VBO.
+			Many<T> m_data;
+			
+			//! The amount of data
+			int m_count;
+			
+		public:
+			//! Create a new VBO with in_count elements
+			TVBO(int in_count, bool in_isStatic = true)
+			: VBO(in_count *sizeof(T), false, in_isStatic)
+			, m_count(in_count)
+			{
+				m_data = new T[in_count];
+			}
+			
+			//! Count (number of elements) in VBO
+			int count() const				{	return m_count;				}
+			
+			//! Access the data
+			T &operator[](int in_index)		{	return m_data()[in_index];	}
+			
+			//! Synchronize the data with the source
+			void sync()
+			{
+				uploadData((void*)m_data());
+			}
+			
+			//! The number of elements in the VBO data structure
+			static const int elementCount()	{	return T::length();		}
+			
+			//! A list of the elements in the VBO data structure
+			static const TypeDescription* elementDescription()
+			{	return T::description();	}
+			
+		};
+	}
+	
+	
+	//! Specialized VBO with just a single set of vertices
+	typedef Type::TVBO<Type::Description::V3>			VBO_V3;
+	typedef Type::TVBO<Type::Description::V3_C4>		VBO_V3_C4;
 };
 
 #endif

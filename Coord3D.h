@@ -17,6 +17,8 @@
 #ifndef COORD3D_H
 #define COORD3D_H
 
+#include "Coord2D.h"
+
 //! 3D coordinate object
 /*!	Abstract coordinate object.  Allows for changing underlying
 	number representation type easily.
