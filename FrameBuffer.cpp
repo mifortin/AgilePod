@@ -146,6 +146,7 @@ void FrameBuffer::downloadFrameBuffer(int8_t *out_dest)
 
 FrameBuffer::~FrameBuffer()
 {
+	printf("Destroying FrameBuffer!!!");
 	if (g_curFB == this)
 	{
 		g_curFB = NULL;

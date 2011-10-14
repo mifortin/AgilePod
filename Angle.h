@@ -24,7 +24,7 @@
 	work on angles in a space that ranges from -M_PI to M_PI such that
 	-M_PI = M_PI. */
 
-#include <math.h>
+#include <cmath>
 
 /*!	Represents an angle and ways to deal with their circular behaviour.
 	\tparam S	The representation (usually float) */
@@ -100,6 +100,10 @@ public:
 		fixAngle(m);
 		return *this;
 	}
+	
+	//! Obtain cos of the value
+	S cos()		const		{	return std::cos(m);		}
+	S sin()		const		{	return std::sin(m);		}
 	
 	//! In range?	( normal operators make no sense, always gt and lt)
 	/*! Why not angles?  They wrap, this is actually easier for the user... */

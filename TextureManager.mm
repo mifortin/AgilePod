@@ -22,7 +22,7 @@
 
 
 //Texture info...
-static GLuint g_boundTexture	= 0;
+static GLuint g_boundTexture[4]	= {0,0,0,0};
 
 Texture::Texture(const char *in_textureName)
 : m_texID(0)
@@ -41,32 +41,34 @@ Texture::Texture(IImageDataSource *in_ds)
 }
 
 
-GLuint Texture::use()
+GLuint Texture::use(int in_index)
 {
 	if (m_texID == 0)	lazyLoad();
 	
-	GLuint r = g_boundTexture;
+	GLuint r = g_boundTexture[in_index];
 	
-	if (g_boundTexture != m_texID)
+	if (g_boundTexture[in_index] != m_texID)
 	{
+		glActiveTexture(GL_TEXTURE0 + in_index);
 		glBindTexture(GL_TEXTURE_2D, m_texID);
-		g_boundTexture = m_texID;
+		g_boundTexture[in_index] = m_texID;
 	}
 	
 	return r;
 }
 
 
-GLuint FrameBuffer::use()
+GLuint FrameBuffer::use(int in_index)
 {
 	if (m_texID == 0)	lazyInit();
 	
-	GLuint r = g_boundTexture;
+	GLuint r = g_boundTexture[in_index];
 	
-	if (g_boundTexture != m_texID)
+	if (g_boundTexture[in_index] != m_texID)
 	{
+		glActiveTexture(GL_TEXTURE0 + in_index);
 		glBindTexture(GL_TEXTURE_2D, m_texID);
-		g_boundTexture = m_texID;
+		g_boundTexture[in_index] = m_texID;
 	}
 	
 	return r;
@@ -181,9 +183,10 @@ void Texture::checkForMoreData()
 
 BindTexture::~BindTexture()
 {
-	if (g_boundTexture != m_prev)
+	if (g_boundTexture[m_index] != m_prev)
 	{
+		glActiveTexture(GL_TEXTURE0 + m_index);
 		glBindTexture(GL_TEXTURE_2D, m_prev);
-		g_boundTexture = m_prev;
+		g_boundTexture[m_index] = m_prev;
 	}
 }

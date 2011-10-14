@@ -18,6 +18,7 @@
 #define COORD3D_H
 
 #include "Coord2D.h"
+#include <cmath>
 
 //! 3D coordinate object
 /*!	Abstract coordinate object.  Allows for changing underlying
@@ -87,15 +88,19 @@ public:
 typedef TCoord3D<float> Coord3D;
 
 
-static float dot(const Coord3D &a, const Coord3D &b)
+//! Compute the dot product
+template<class T>
+static T dot(const TCoord3D<T> &a, const TCoord3D<T> &b)
 {
 	return a.x*b.x + a.y*b.y + a.z*b.z;
 }
 
 
-static float distance(const Coord3D &a)
+//! Compute the magnitude
+template<class T>
+static T magnitude(const TCoord3D<T> &a)
 {
-	return sqrtf(dot(a,a));
+	return std::sqrt(dot(a,a));
 }
 
 template<class T>
@@ -122,10 +127,18 @@ static TCoord3D<T> operator*(const TCoord3D<T> &a, const TCoord3D<T> &b)
 	return TCoord3D<T>(a.x*b.x, a.y*b.y, a.z*b.z);
 }
 
+//! Division operators
 template<class T>
 static TCoord3D<T> operator/(const TCoord3D<T> &a, float b)
 {
 	return TCoord3D<T>(a.x/b, a.y/b, a.z/b);
+}
+
+//! Normalize the vector
+template<class T>
+static TCoord3D<T> normalize(const TCoord3D<T> &a)
+{
+	return a / magnitude(a);
 }
 
 template<class T>
@@ -134,16 +147,18 @@ static TCoord3D<T> operator*(T b, const TCoord3D<T> &a)
 	return TCoord3D<T>(a.x*b, a.y*b, a.z*b);
 }
 
-
-static Coord3D to3Space(Coord3D &a)
+//! Move to 3-space
+template<class T>
+static TCoord3D<T> to3Space(TCoord3D<T> &a)
 {
 	return a;
 }
 
-
-static Coord3D to3Space(Coord2D &a)
+//! Upgrade from 3-space to 2-space
+template<class T>
+static TCoord3D<T> to3Space(TCoord2D<T> &a)
 {
-	return Coord3D(a.x, a.y, 0);
+	return TCoord3D<T>(a.x, a.y, 0);
 }
 
 

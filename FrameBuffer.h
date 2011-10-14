@@ -75,7 +75,7 @@ private:
 	friend class BindTexture;
 	
 	//! Use this FrameBuffer (implementation in TextureManager.mm)
-	GLuint use();
+	GLuint use(int in_index);
 
 public:
 	//!Creates a new FrameBuffer
@@ -100,6 +100,14 @@ public:
 	
 	//!The size of the buffer (minimum required for download)
 	int bufferSizeInBytes()	{		return m_size.x*m_size.y*4;	}
+	
+	//! What is the size of the image within the buffer
+	/*!	May be smaller than size on systems that don't support NPOT */
+	inline Coord2D			sizeInTexture()
+	{
+		return Coord2D(	(float)m_size.x / (float)m_pot.x,
+						(float)m_size.y / (float)m_pot.y);
+	}
 	
 	//!Frees the FrameBuffer object
 	~FrameBuffer();

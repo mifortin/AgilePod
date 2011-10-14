@@ -63,7 +63,7 @@ private:
 	
 	//!Lazily bind the texture.
 	/*!That is; it is only bound upon rendering - and only if the texture ID changed. */
-	GLuint use();
+	GLuint use(int in_index);
 	
 public:
 	//! Create a new texture from a file
@@ -130,30 +130,35 @@ class BindTexture
 private:
 	//! Previous texture (accumulated on stack)
 	GLuint m_prev;
+	
+	//! Texture index (for multitexturing)
+	int m_index;
 
 public:
 	//! Binds a texture object
-	BindTexture(Texture *t)
+	BindTexture(Texture *t, int in_index=0)
+	: m_index(in_index)
 	{
-		m_prev = t->use();
+		m_prev = t->use(in_index);
 	}
 	
 	//! Binds a frame buffer object
-	BindTexture(FrameBuffer *f)
+	BindTexture(FrameBuffer *f, int in_index=0)
+	: m_index(in_index)
 	{
-		m_prev = f->use();
+		m_prev = f->use(in_index);
 	}
 	
 	//! Binds another texture (more efficient than nesting)
 	void rebind(Texture *t)
 	{
-		t->use();
+		t->use(m_index);
 	}
 	
 	//! Binds another framebuffer (more efficient than nesting)
 	void rebind(FrameBuffer *f)
 	{
-		f->use();
+		f->use(m_index);
 	}
 	
 	//! Restore the texture upon destruction.
