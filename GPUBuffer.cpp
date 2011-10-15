@@ -84,7 +84,7 @@ namespace GPU
 		namespace Description
 		{
 			const TypeDescription V3::desc[]
-			=	{	TypeDescription(Float32, Vertices, 3)	};
+			=	{	TypeDescription(Float32, 3, offsetof(V3, x))	};
 			
 			const int V3::length()
 			{	return sizeof(desc) / sizeof(TypeDescription);	}
@@ -92,8 +92,8 @@ namespace GPU
 			
 			
 			const TypeDescription V3_C4::desc[]
-			=	{	TypeDescription(Float32,	Vertices,	3),
-					TypeDescription(Int8,		Colours,	4)		};
+			=	{	TypeDescription(Float32,	3, offsetof(V3_C4, position)),
+					TypeDescription(Int8,		4, offsetof(V3_C4, colour))	};
 			
 			const int V3_C4::length()
 			{	return sizeof(desc) / sizeof(TypeDescription);	}

@@ -147,15 +147,6 @@ namespace GPU
 			Int16		= GL_SHORT,			//!< Short
 			Int32		= GL_INT			//!< 32-bit int.
 		};
-		
-		//! Purpose for the different types (vertices, colours, etc.)
-		enum Purpose
-		{
-			Vertices,						//!< A list of vertices
-			Colours,						//!< A list of colours
-			Indices,						//!< A list of indices
-			TextureCoordinates				//!< A list of tex coordinates
-		};
 	
 	
 		//!	Describes a type within an FBO (such as a set of floats, etc.)
@@ -168,20 +159,19 @@ namespace GPU
 			//! Data type for the data (upload)
 			const Type m_type;
 			
-			//! The purpose of the type.
-			/*! If more than one of the same type, then the first occurence is 0 */
-			const Purpose m_purpose;
-			
 			//! The size of the vector.
 			/*!	Differentiate between vertices on the line, plane, space, and 4d */
 			const int m_size;
 			
+			//! Offset to the data within the buffer
+			const int m_offset;
+			
 		public:
 			//! Create a new TypeDescription
-			TypeDescription(Type in_type, Purpose in_purpose, int in_s)
+			TypeDescription(Type in_type, int in_s, int in_o)
 			: m_type(in_type)
-			, m_purpose(in_purpose)
 			, m_size(in_s)
+			, m_offset(in_o)
 			{
 				if (in_s <= 0 || in_s > 4)	throw "TypeDescription::Invalid size";
 			}
@@ -189,11 +179,11 @@ namespace GPU
 			//! Get the type
 			const Type type() const			{	return m_type;				}
 			
-			//! Get the purpose
-			const Purpose purpose() const	{	return m_purpose;			}
-			
 			//! Get the size
 			const int size() const			{	return m_size;				}
+			
+			//! Get the offset
+			const int offset() const		{	return m_offset;			}
 		};
 		
 		
@@ -245,6 +235,9 @@ namespace GPU
 			
 			//! The amount of data
 			int m_count;
+			
+			//! Friend the attribute that binds this to GL
+			friend class Attribute;
 			
 		public:
 			//! Create a new VBO with in_count elements

@@ -25,21 +25,19 @@ class Matrix2D
 {
 public:
 	//! First row
-	Coord2D row1;
-	
-	//! Second row
-	Coord2D row2;
+	Coord2D rows[2];
 	
 	//! Initialize as rotation matrix
 	Matrix2D(const Angle &in_angle)
-	: row1(cosf(in_angle.radians()), -sinf(in_angle.radians()))
-	, row2(sinf(in_angle.radians()), cosf(in_angle.radians()))
-	{}
+	{
+		rows[0] = Coord2D(cosf(in_angle.radians()), -sinf(in_angle.radians()));
+		rows[1] = Coord2D(sinf(in_angle.radians()), cosf(in_angle.radians()));
+	}
 	
 	//! Basic multiplication
 	Coord2D operator*(const Coord2D &in_c2d) const
 	{
-		return Coord2D(dot(row1, in_c2d), dot(row2, in_c2d));
+		return Coord2D(dot(rows[0], in_c2d), dot(rows[1], in_c2d));
 	}
 };
 
