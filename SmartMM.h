@@ -59,6 +59,10 @@ NSString *myString = [NSString stringWithFormat:@"%s %s", "Hello", "World"];
 	//Implicit release of myString (through destructor)
 }
 	\endcode
+ 
+ 
+	This object should be seen as deprecated.  Older projects that do not use
+	ARC should define NO_ARC 
 */
 template<class T>
 class OneNS
@@ -73,7 +77,9 @@ public:
 	OneNS(const OneNS &cpy)
 	{
 		m_one = cpy.m_one;
+#ifdef NO_ARC
 		if (m_one)		[m_one retain];
+#endif
 	}
 	
 	//! Create a new smart pointer
@@ -81,7 +87,9 @@ public:
 	OneNS(T in_one = nil)
 	{
 		m_one = in_one;
+#ifdef NO_ARC
 		if (m_one)		[m_one retain];
+#endif
 	}
 	
 	//! Assign a different pointer
@@ -89,8 +97,10 @@ public:
 		\return	The previous reference and releasing it once. */
 	inline T operator=(T in_init)
 	{
-		if (in_init)	[in_init retain];
+#ifdef NO_ARC
+		[in_init retain];
 		if (m_one)		[m_one release];
+#endif
 		
 		m_one = in_init;
 		
@@ -122,10 +132,12 @@ public:
 	inline T v() const				{	return m_one;	}
 	
 	//! Destructor releases held instance.
+#ifdef NO_ARC
 	virtual ~OneNS()
 	{
 		if (m_one)		[m_one release];
 	}
+#endif
 };
 
 

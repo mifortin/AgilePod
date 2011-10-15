@@ -39,8 +39,10 @@ namespace GPU {
 				}
 				
 				g_exts = [NSSet setWithArray:tmp];
-					 
+
+#ifdef NO_ARC
 				[g_exts retain];
+#endif
 			}
 		}
 
