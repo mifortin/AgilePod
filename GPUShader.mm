@@ -30,6 +30,8 @@ namespace GPU
 		NSString *vertPath = [[NSBundle mainBundle] pathForResource:s ofType:@"vsh"];
 		NSString *fragPath = [[NSBundle mainBundle] pathForResource:s ofType:@"fsh"];
 		
+		m_program = glCreateProgram();
+		
 		if (vertPath == nil || fragPath == nil)
 		{
 			throw APError("Unable to find %s in bundle", in_szFile);
@@ -61,7 +63,7 @@ namespace GPU
 		
 		
 		//Display any errors
-		int logLength;
+		int logLength = 0;
 		glGetShaderiv(vertShader, GL_INFO_LOG_LENGTH, &logLength);
 		if (logLength > 0)
 		{
@@ -82,7 +84,7 @@ namespace GPU
 		
 		
 		//Destroy the object upon any error
-		int vertStatus, fragStatus;
+		int vertStatus=0, fragStatus=0;
 		glGetShaderiv(vertShader, GL_COMPILE_STATUS, &vertStatus);
 		glGetShaderiv(fragShader, GL_COMPILE_STATUS, &fragStatus);
 		
@@ -101,10 +103,8 @@ namespace GPU
 		
 		
 		//Link the program
-		int status;
+		int status=0;
 		glLinkProgram(m_program);
-		glDeleteShader(vertShader);
-		glDeleteShader(fragShader);
 		
 		glGetProgramiv(m_program, GL_INFO_LOG_LENGTH, &logLength);
 		if (logLength > 0)
@@ -117,7 +117,11 @@ namespace GPU
 		
 		glGetProgramiv(m_program, GL_LINK_STATUS, &status);
 		if (status == 0)
+		{
+			glDeleteShader(vertShader);
+			glDeleteShader(fragShader);
 			throw APError("Failed to link shader %s", in_szFile);
+		}
 		
 		
 		//Validate the program
@@ -134,7 +138,11 @@ namespace GPU
 		
 		glGetProgramiv(m_program, GL_VALIDATE_STATUS, &status);
 		if (status == 0)
+		{
 			throw APError("Failed to validate program %s", in_szFile);
+		}
+		glDeleteShader(vertShader);
+		glDeleteShader(fragShader);
 	}
 	
 	

@@ -19,7 +19,7 @@
 namespace GPU
 {
 	//! Global VBO reference (for binding)
-	static RCOne<VBO> g_vbo = NULL;
+	static VBO *g_vbo = NULL;
 	
 	
 	VBO::VBO(int in_maxSize, bool in_isVertices, bool in_isStatic)
@@ -44,7 +44,7 @@ namespace GPU
 	
 	void VBO::bind()
 	{
-		if (g_vbo() != this)
+		if (g_vbo != this)
 			glBindBuffer(m_isVertices?GL_ARRAY_BUFFER : GL_ELEMENT_ARRAY_BUFFER, m_buff);
 	}
 	
@@ -56,21 +56,21 @@ namespace GPU
 		if (length <= 0)	length = m_maxSize - start;
 		
 		glBufferSubData(m_isVertices?GL_ARRAY_BUFFER : GL_ELEMENT_ARRAY_BUFFER,
-						start, length, NULL);
+						start, length, in_data);
 	}
 	
 	
 	
 	BindVBO::BindVBO(VBO *in_vbo)
-	: m_vbo(g_vbo())
+	: m_vbo(g_vbo)
 	{
 		rebind(in_vbo);
 	}
 	
 	BindVBO::~BindVBO()
 	{
-		m_vbo()->bind();
-		g_vbo = m_vbo();
+		if (m_vbo != NULL) m_vbo->bind();
+		g_vbo = m_vbo;
 	}
 	
 	void BindVBO::rebind(VBO *in_other)
@@ -96,6 +96,15 @@ namespace GPU
 					TypeDescription(Int8,		4, offsetof(V3_C4, colour))	};
 			
 			const int V3_C4::length()
+			{	return sizeof(desc) / sizeof(TypeDescription);	}
+			
+			
+			
+			const TypeDescription V2_T2::desc[]
+			=	{	TypeDescription(Float32,	2, offsetof(V2_T2, position)),
+					TypeDescription(Float32,	2, offsetof(V2_T2, texture))	};
+			
+			const int V2_T2::length()
 			{	return sizeof(desc) / sizeof(TypeDescription);	}
 		}
 	};

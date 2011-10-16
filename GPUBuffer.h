@@ -71,7 +71,7 @@ namespace GPU
 	 
 		As far as I know, this is the most elegant way forward.
 	 */
-	class VBO : public RC
+	class VBO
 	{
 	private:
 		//! The buffer in the back
@@ -120,7 +120,7 @@ namespace GPU
 	{
 	private:
 		//! Previously bound VBO object
-		RCOne<VBO>	m_vbo;
+		VBO	*m_vbo;
 		
 	public:
 		//! Initialize with a VBO object (can't be NULL)
@@ -211,6 +211,19 @@ namespace GPU
 				static const int length();
 				static const TypeDescription* description() { return desc;	}
 			};
+			
+			//! Describes a vertex + texture coordinates in the plane
+			class V2_T2
+			{
+				static const TypeDescription desc[];
+				
+			public:
+				Coord2D		position;
+				Coord2D		texture;
+				
+				static const int length();
+				static const TypeDescription* description() { return desc;	}
+			};
 		};
 		
 		
@@ -274,6 +287,7 @@ namespace GPU
 	//! Specialized VBO with just a single set of vertices
 	typedef Type::TVBO<Type::Description::V3>			VBO_V3;
 	typedef Type::TVBO<Type::Description::V3_C4>		VBO_V3_C4;
+	typedef Type::TVBO<Type::Description::V2_T2>		VBO_V2_T2;
 };
 
 #endif
