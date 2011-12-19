@@ -20,6 +20,17 @@
 #include "Coord2D.h"
 #include <cmath>
 
+//! Redefinition of CMAcceleration
+/*!	This allows for everything to remain in C++, removes need to link
+	against CoreMotion if unneeded */
+#ifndef __COREMOTION__
+typedef struct {
+	double x;
+	double y;
+	double z;
+} CMAcceleration;
+#endif
+
 //! 3D coordinate object
 /*!	Abstract coordinate object.  Allows for changing underlying
 	number representation type easily.
@@ -33,11 +44,17 @@ public:
 	T x,y,z;
 	
 	//! Standard constructor (everything default to 0)
-	/*!	\param in_x[in]		X coordinate (default 0)
-		\param in_y[in]		Y coordinate (default 0)
-		\param in_z[in]		Z coordinate (default 0) */
+	/*!	\param	[in] 	in_x		X coordinate (default 0)
+		\param 	[in]	in_y		Y coordinate (default 0)
+		\param 	[in]	in_z		Z coordinate (default 0) */
 	TCoord3D(T in_x = 0, T in_y = 0, T in_z = 0)
 	: x(in_x), y(in_y), z(in_z) {}
+	
+	//! Construct from a CoreMotion acceleration object
+	/*!	\param	[in]	in_accel	The core motion acceleration object */
+	TCoord3D(CMAcceleration in_accel)
+	: x(in_accel.x), y(in_accel.y), z(in_accel.z)
+	{}
 	
 	//! Standard addition operator
 	TCoord3D &operator+=(const TCoord3D &other)
