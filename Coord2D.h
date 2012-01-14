@@ -95,6 +95,13 @@ public:
 		return TCoord2D(x*b.x, y*b.y);
 	}
 	
+	
+	//! Component-wise division
+	TCoord2D operator/(const TCoord2D &b) const
+	{
+		return TCoord2D(x/b.x, y/b.y);
+	}
+	
 	//! Divide by scalar
 	TCoord2D operator/(const float b) const
 	{

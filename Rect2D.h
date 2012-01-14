@@ -39,6 +39,11 @@ public:
 	: corner(in_x, in_y)
 	, size(in_width, in_height)
 	{}
+	
+	Rect2D(Coord2D in_corner, Coord2D in_size)
+	: corner(in_corner)
+	, size(in_size)
+	{}
 
 	//! Return point in the middle
 	Coord2D center() const
@@ -72,6 +77,12 @@ public:
 	inline bool containsPoint(Coord2D in_c2d) const
 	{
 		return containsPointXRange(in_c2d) && containsPointYRange(in_c2d);
+	}
+	
+	//! Scale by a coordinate
+	inline Rect2D operator*(const Coord2D &in_c)
+	{
+		return Rect2D(corner * in_c, size * in_c);
 	}
 };
 

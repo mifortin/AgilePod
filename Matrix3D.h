@@ -86,6 +86,32 @@ public:
 		
 		return r;
 	}
+	
+	
+	//! Scalar multiplication
+	TMatrix3D	operator *(const T &m)		const
+	{
+		TMatrix3D r;
+		
+		r.rows[0] = rows[0] * m;
+		r.rows[1] = rows[1] * m;
+		r.rows[2] = rows[2] * m;
+		
+		return r;
+	}
+	
+	
+	//! Matrix addition
+	TMatrix3D	operator +(const TMatrix3D &m)		const
+	{
+		TMatrix3D r;
+		
+		r.rows[0] = rows[0] + m.rows[0];
+		r.rows[1] = rows[1] + m.rows[1];
+		r.rows[2] = rows[2] + m.rows[2];
+		
+		return r;
+	}
 };
 
 
