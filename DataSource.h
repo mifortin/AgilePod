@@ -216,7 +216,13 @@ IImageDataSource *CreateImageDataSourceFromFile(const char *in_szFile);
 class ICVImageBufferDataSource : public IImageDataSource
 {
 public:
+	//! Give a new image buffer to the data source
 	virtual void addCVImageBuffer(CVImageBufferRef in_ref)		= 0;
+	
+	//! Get the range of the RGB colors
+	virtual Coord3D minRGB()	= 0;
+	
+	virtual Coord3D maxRGB()	= 0;
 };
 
 //! Create a new data-source that will take in CVImageBuffer objects
