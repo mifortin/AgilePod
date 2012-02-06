@@ -1,5 +1,5 @@
 /*
-   Copyright 2010 Michael Fortin
+   Copyright 2010,2011,2012 Michael Fortin
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -16,6 +16,13 @@
 
 #import "Restorer.h"
 #import "SmartMM.h"
+
+//GCC doesn't like ARC-style bridge
+#ifdef NO_ARC
+#define BRIDGE
+#else
+#define BRIDGE	__bridge
+#endif
 
 #pragma mark Restore
 class RestorerRestorePList : public Restorer
@@ -44,7 +51,7 @@ public:
 		assert(in_key && in_object);
 		
 		RestorerRestorePList r;
-		r.m_dictionary = [m_dictionary() objectForKey:(__bridge NSString*)in_key];
+		r.m_dictionary = [m_dictionary() objectForKey:(BRIDGE NSString*)in_key];
 		if (r.m_dictionary == nil)
 			r.m_dictionary = [NSDictionary dictionary];
 		
@@ -56,7 +63,7 @@ public:
 	{
 		assert(io_value && in_key);
 		
-		NSNumber *n = [m_dictionary() objectForKey:(__bridge NSString*)in_key];
+		NSNumber *n = [m_dictionary() objectForKey:(BRIDGE NSString*)in_key];
 		
 		if (n)		*io_value = [n intValue];
 		else		*io_value = in_default;
@@ -67,7 +74,7 @@ public:
 	{
 		assert(io_value && in_key);
 		
-		NSNumber *n = [m_dictionary() objectForKey:(__bridge NSString*)in_key];
+		NSNumber *n = [m_dictionary() objectForKey:(BRIDGE NSString*)in_key];
 		
 		if (n)		*io_value = [n floatValue];
 		else		*io_value = in_default;
@@ -112,11 +119,11 @@ public:
 	void Object(CFStringRef in_key, Restorable *in_object)
 	{
 		assert(in_key && in_object);
-		assert([m_dictionary() objectForKey:(__bridge NSString*)in_key] == nil);
+		assert([m_dictionary() objectForKey:(BRIDGE NSString*)in_key] == nil);
 		
 		RestorerSavePList tmp;
 		tmp.m_dictionary = [NSMutableDictionary dictionaryWithCapacity:5];
-		[m_dictionary() setObject:tmp.m_dictionary() forKey:(__bridge NSString*)in_key];
+		[m_dictionary() setObject:tmp.m_dictionary() forKey:(BRIDGE NSString*)in_key];
 		in_object->handle(&tmp);
 	}
 	
@@ -124,20 +131,20 @@ public:
 	void Int(CFStringRef in_key, int *io_value, int in_default)
 	{
 		assert(in_key && io_value);
-		assert([m_dictionary() objectForKey:(__bridge NSString*)in_key] == nil);
+		assert([m_dictionary() objectForKey:(BRIDGE NSString*)in_key] == nil);
 		
 		[m_dictionary() setObject:[NSNumber numberWithInt:*io_value]
-						forKey:(__bridge NSString*)in_key];
+						forKey:(BRIDGE NSString*)in_key];
 	}
 	
 	
 	void Float(CFStringRef in_key, float *io_value, float in_default)
 	{
 		assert(in_key && io_value);
-		assert([m_dictionary() objectForKey:(__bridge NSString*)in_key] == nil);
+		assert([m_dictionary() objectForKey:(BRIDGE NSString*)in_key] == nil);
 		
 		[m_dictionary() setObject:[NSNumber numberWithFloat:*io_value]
-						forKey:(__bridge NSString*)in_key];
+						forKey:(BRIDGE NSString*)in_key];
 	}
 };
 
@@ -150,7 +157,7 @@ static NSString* PathForFile(CFStringRef in_fileName)
 									NSUserDomainMask,
 									YES);
 	
-	NSString *tmp = (__bridge NSString*)in_fileName;
+	NSString *tmp = (BRIDGE NSString*)in_fileName;
 								
 	NSFileManager *fm = [NSFileManager defaultManager];
 	

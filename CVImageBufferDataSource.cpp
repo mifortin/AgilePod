@@ -26,8 +26,12 @@ private:
 	//! Do we need to unlock the buffer?
 	bool			m_locked;
 	
+	//! Ranges of the colours for normalization purposes.
+	unsigned char minB, minG, minR, maxG, maxB, maxR;
+	
 public:
 	CVImageBufferDataSource()
+	: minR(0), maxR(0), minG(0), maxG(0), minB(0), maxB(0)
 	{
 		m_ref = NULL;
 		m_locked = false;
@@ -40,7 +44,37 @@ public:
 		
 		CVPixelBufferLockBaseAddress(m_ref, 0);
 		m_locked = true;
-		return CVPixelBufferGetBaseAddress(m_ref);
+		
+		unsigned char*data = (unsigned char*)CVPixelBufferGetBaseAddress(m_ref);
+		Coord2DI s = size();
+		
+//		int i,j;
+//		
+//		minB = 255;
+//		minG = 255;
+//		minR = 255;
+//		
+//		maxG = 0;
+//		maxB = 0;
+//		maxR = 0;
+//		
+//		
+//		for (j=0; j<s.y; j+=64)
+//		{
+//			for (i=0; i<s.x*4; i+=4)
+//			{
+//				int k = i + j*s.x*4;
+//				if (data[k] < minB)	minB = data[k];
+//				if (data[k+1] < minG)	minG = data[k+1];
+//				if (data[k+2] < minR)	minR = data[k+2];
+//				
+//				if (data[k] > maxB)	maxB = data[k];
+//				if (data[k+1] > maxG)	maxG = data[k+1];
+//				if (data[k+2] > maxR)	maxR = data[k+2];
+//			}
+//		}
+		
+		return (void*)data;
 	}
 	
 	
@@ -69,8 +103,8 @@ public:
 	{
 		if (m_ref)
 		{
-			return Coord2DI(CVPixelBufferGetWidth(m_ref),
-							CVPixelBufferGetHeight(m_ref));
+			return Coord2DI((short)CVPixelBufferGetWidth(m_ref),
+							(short)CVPixelBufferGetHeight(m_ref));
 		}
 		else
 			return Coord2DI(0,0);
@@ -95,6 +129,16 @@ public:
 	virtual ~CVImageBufferDataSource()
 	{
 		releaseData();
+	}
+	
+	virtual Coord3D minRGB()
+	{
+		return Coord3D((float)minR/255.0f, (float)minG/255.0f, (float)minB/255.0f);
+	}
+	
+	virtual Coord3D maxRGB()
+	{
+		return Coord3D((float)maxR/255.0f, (float)maxG/255.0f, (float)maxB/255.0f);
 	}
 };
 
