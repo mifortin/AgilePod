@@ -39,19 +39,26 @@ namespace GPU
 	//! Represents a parameter
 	/*!	In GL, these are uniforms.  They are like constant parameters to a
 		shader	*/
-	class Parameter
+	class Uniform
 	{
 	private:
 		//! Offset of the parameter (according to GL)
 		GLint offset;
 		
 		//! Parameter is private (force going through shader)
-		Parameter(GLint in_offset) : offset(in_offset) {}
+		Uniform(GLint in_offset) : offset(in_offset) {}
 		
 		//! Needed for access to the constructor
 		friend class Shader;
 		
 	public:
+		//! For post-init
+		Uniform() :	offset(-1)	{}
+		
+		//! Send in an integer
+		void set(const int in_val) const
+		{	glUniform1i(offset, in_val);	}
+	
 		//! Send in a scalar
 		void set(const float in_val) const
 		{	glUniform1f(offset, in_val);	}
@@ -83,22 +90,32 @@ namespace GPU
 	class Attribute
 	{
 	private:
-		GLint offset;		//!< Offset of the parameter (according to GL)
+		GLuint offset;		//!< Offset of the parameter (according to GL)
 		
 		//! Private constructor to force going through shader
-		Attribute(GLint in_offset) : offset(in_offset) {}
+		Attribute(GLuint in_offset) : offset(in_offset) {}
 		
 		//! Required for access to the constructor
 		friend class Shader;
 		
 	public:
-		//! Associate an attribute to an element within a VBO
-		template<class T>
-		void set(const Type::TVBO<T> &in_vbo, int in_offset)
+		//! For post-init
+		Attribute() : offset(0)	{}
+		
+		//! Associate to a specified VBO index
+		void attribPointer(int in_size, unsigned int in_type, bool in_normalize, int in_stride, const void *in_pointer)
 		{
-			const Type::TypeDescription *d = in_vbo.elementDescription(in_offset);
-			glVertexAttribPointer(offset, d->size(), d->type(), GL_FALSE, in_vbo.count(), (char*)in_vbo.m_data() + d->offset());
+			glEnableVertexAttribArray(offset);	//TODO: make this better...
+			glVertexAttribPointer(offset, in_size, in_type, in_normalize, in_stride, in_pointer);
 		}
+	
+		//! Associate an attribute to an element within a VBO
+//		template<class T>
+//		void set(const Type::TVBO<T> &in_vbo, int in_offset)
+//		{
+//			const Type::TypeDescription *d = in_vbo.elementDescription(in_offset);
+//			glVertexAttribPointer(offset, d->size(), d->type(), GL_FALSE, in_vbo.count(), (char*)in_vbo.m_data() + d->offset());
+//		}
 	};
 	
 	
@@ -114,18 +131,29 @@ namespace GPU
 		
 	public:
 		//! Create a shader from external files
-		/*!	It was possible to make this more complex, but it's not needed
-			\param in_szFile	The name of the file where the shader code is
-								stored.  Two files are assumed, one with a
-								.vsh extension and the other with a .fsh.
-								They are linked together to form the program */
-		Shader(const char *in_szFile);
+		Shader();
+		
+		//! Load a new shader
+		/*!	It was possible to make this more complex, but it's not needed.
+		
+			If a shader was already loaded, then it is removed from memory and
+			a new one is loaded.
+			
+			 \param in_szFile	The name of the file where the shader code is
+			 stored.  Two files are assumed, one with a
+			 .vsh extension and the other with a .fsh.
+			 They are linked together to form the program
+			 */
+		void init(const char *in_szFile);
 		
 		//! Get the location of a given uniform
-		Parameter getParameter(const char *in_name) const;
+		Uniform getUniform(const char *in_name) const;
 		
 		//! Get the location of a given attribute
 		Attribute getAttribute(const char *in_name) const;
+		
+		//! Explicit termination
+		void unloadShader();
 		
 		//! Done with the shader
 		~Shader();

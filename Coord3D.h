@@ -151,6 +151,12 @@ static TCoord3D<T> operator/(const TCoord3D<T> &a, float b)
 	return TCoord3D<T>(a.x/b, a.y/b, a.z/b);
 }
 
+template<class T>
+static TCoord3D<T> operator/(float b, const TCoord3D<T> &a)
+{
+	return TCoord3D<T>(b/a.x, b/a.y, b/a.z);
+}
+
 //! Normalize the vector
 template<class T>
 static TCoord3D<T> normalize(const TCoord3D<T> &a)

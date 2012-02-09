@@ -67,6 +67,14 @@ public:
 		rows[2].z = in_scale;
 	}
 	
+	//! Scale according to a vector
+	TMatrix3D(const TCoord3D<T> &in_scale)
+	{
+		rows[0].x = in_scale.x;
+		rows[1].y = in_scale.y;
+		rows[2].z = in_scale.z;
+	}
+	
 	//! Matrix multiplication
 	TMatrix3D	operator *(const TMatrix3D &m)		const
 	{

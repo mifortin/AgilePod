@@ -22,13 +22,27 @@
 
 namespace GPU
 {
-	Shader::Shader(const char *in_szFile)
+	Shader::Shader()
 	{
+		m_program = 0;
+	}
+
+	void Shader::init(const char *in_szFile)
+	{
+		if (m_program != 0)
+		{
+			glDeleteProgram(m_program);
+			m_program = 0;
+		}
+	
 		NSString *s = [NSString stringWithUTF8String:in_szFile];
 		
 		// Get the files
 		NSString *vertPath = [[NSBundle mainBundle] pathForResource:s ofType:@"vsh"];
 		NSString *fragPath = [[NSBundle mainBundle] pathForResource:s ofType:@"fsh"];
+		
+		NSLog(@"GPU::Shader::init::vert_shader=%@", vertPath);
+		NSLog(@"GPU::Shader::init::frag_shader=%@", fragPath);
 		
 		m_program = glCreateProgram();
 		
@@ -102,6 +116,9 @@ namespace GPU
 		glAttachShader(m_program, fragShader);
 		
 		
+		//Bind the attributes
+		
+		
 		//Link the program
 		int status=0;
 		glLinkProgram(m_program);
@@ -146,14 +163,14 @@ namespace GPU
 	}
 	
 	
-	Parameter Shader::getParameter(const char *in_name) const
+	Uniform Shader::getUniform(const char *in_name) const
 	{
 		GLint offset = glGetUniformLocation(m_program, in_name);
 		
 		if (offset == -1)
 			throw APError("Unable to find uniform %s", in_name);
 		
-		return Parameter(offset);
+		return Uniform(offset);
 	}
 	
 	
@@ -164,13 +181,23 @@ namespace GPU
 		if (offset == -1)
 			throw APError("Unable to find attribute %s", in_name);
 		
-		return Attribute(offset);
+		return Attribute((GLuint)offset);
+	}
+	
+	
+	void Shader::unloadShader()
+	{
+		if (m_program)
+		{
+			glDeleteProgram(m_program);
+			m_program = 0;
+		}
 	}
 	
 	
 	Shader::~Shader()
 	{
-		glDeleteProgram(m_program);
+		unloadShader();
 	}
 	
 	

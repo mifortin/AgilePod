@@ -70,11 +70,11 @@ public:
 		if (texImage == nil)
 			throw "Underlying CGImageRef was NULL";
 		
-		int width = CGImageGetWidth(texImage);
-		int height = CGImageGetHeight(texImage);
+		size_t width = CGImageGetWidth(texImage);
+		size_t height = CGImageGetHeight(texImage);
 		
-		m_size.x = width;
-		m_size.y = height;
+		m_size.x = (short)width;
+		m_size.y = (short)height;
 		
 		m_fileData = new GLubyte[width*height*4];
 		

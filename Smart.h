@@ -97,6 +97,22 @@ public:
 		if (m_obj)	m_obj->retain();
 	}
 	
+	//! Copy constructor
+	RCOne(const RCOne<T> &in_cpy)
+	{
+		m_obj = in_cpy.m_obj;
+		if (m_obj)	m_obj->retain();
+	}
+	
+	//! Assignment
+	void operator=(const RCOne<T> &in_cpy)
+	{
+		T* c = m_obj;
+		m_obj = in_cpy.m_obj;
+		if (m_obj)	m_obj->retain();
+		if (c)		c->release();
+	}
+	
 	//! Replace existing reference
 	void operator=(T *in_obj)
 	{
@@ -210,7 +226,7 @@ b->hello();
 	
 	//! Destroys object.
 /*! Destroys the object if the internal pointer is not NULL */
-	virtual ~One()	{	if(m_one)		delete m_one;	}
+	virtual ~One()	{	if(m_one)		delete m_one;	m_one = NULL; }
 };
 
 
