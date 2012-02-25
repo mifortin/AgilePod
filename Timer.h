@@ -15,7 +15,6 @@
  */
 
 #include <sys/time.h>
-#include "Smart.h"
 
 #ifndef TIMER_H
 #define TIMER_H
@@ -38,6 +37,10 @@ static double x_time()
 	
 	return (double)t.tv_sec + ((double)t.tv_usec) / 1000000.0;
 }
+
+
+#ifdef __cplusplus
+#include "Smart.h"
 
 //! Timer management
 /*!	The timer is not inheriting from RC since it needs to be managed by the
@@ -128,5 +131,7 @@ public:
 	timer should suffice.  If more timers are needed, than they can be
 	created.	*/
 Timer *GlobalTimer();
+
+#endif
 
 #endif

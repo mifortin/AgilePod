@@ -228,4 +228,17 @@ public:
 //! Create a new data-source that will take in CVImageBuffer objects
 ICVImageBufferDataSource *CreateCVImageBufferDataSource();
 
+
+//! Specialization of IImageDataSource for pointers
+/*!	Pointers are useful for interacting with existing APIs */
+class IPointerDataSource : public IImageDataSource
+{
+public:
+};
+
+
+//! Creates pointer data sources
+IPointerDataSource *CreatePointerDataSource(Coord2DI in_c2d);
+
+
 #endif

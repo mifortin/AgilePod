@@ -42,7 +42,9 @@ public:
 	{
 		if (m_ref == NULL)	return NULL;
 		
-		CVPixelBufferLockBaseAddress(m_ref, 0);
+		if (!m_locked)
+			CVPixelBufferLockBaseAddress(m_ref, 0);
+		
 		m_locked = true;
 		
 		unsigned char*data = (unsigned char*)CVPixelBufferGetBaseAddress(m_ref);
