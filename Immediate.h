@@ -552,6 +552,11 @@ public:
 	{
 		gl.translate(in_c.x, in_c.y);
 	}
+	
+	void scale(const Coord2D &in_s)
+	{
+		gl.scale(in_s);
+	}
 };
 
 #endif
